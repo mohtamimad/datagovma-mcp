@@ -5,8 +5,8 @@ from __future__ import annotations
 import json
 import ssl
 from typing import TypedDict
-from urllib.error import URLError
-from urllib.request import Request, urlopen
+
+import httpx
 
 DEFAULT_API_BASE_URL = "https://data.gov.ma/data/api/3/action"
 
@@ -44,7 +44,7 @@ def _as_string_list(value: object) -> list[str]:
     return [item for item in value if isinstance(item, str)]
 
 
-def get_portal_status(
+async def get_portal_status(
     api_base_url: str = DEFAULT_API_BASE_URL,
     timeout_seconds: float = 15.0,
     verify_ssl: bool = True,
@@ -74,16 +74,23 @@ def get_portal_status(
     """
 
     status_url = _build_status_url(api_base_url)
-    request = Request(status_url, headers={"Accept": "application/json"})
-    ssl_context = None if verify_ssl else ssl._create_unverified_context()
+    ssl_context: ssl.SSLContext | bool
+    ssl_context = True if verify_ssl else ssl._create_unverified_context()
+    timeout = httpx.Timeout(timeout_seconds)
 
     try:
-        with urlopen(request, timeout=timeout_seconds, context=ssl_context) as response:
-            raw_body = response.read().decode("utf-8")
-    except URLError as exc:
-        raise CKANAPIError(f"Request failed for {status_url}: {exc.reason}") from exc
-    except TimeoutError as exc:
+        async with httpx.AsyncClient(
+            timeout=timeout,
+            verify=ssl_context,
+            headers={"Accept": "application/json"},
+        ) as client:
+            response = await client.get(status_url)
+            response.raise_for_status()
+            raw_body = response.text
+    except httpx.TimeoutException as exc:
         raise CKANAPIError(f"Request timed out for {status_url}") from exc
+    except httpx.HTTPError as exc:
+        raise CKANAPIError(f"Request failed for {status_url}: {exc}") from exc
 
     try:
         payload = json.loads(raw_body)
