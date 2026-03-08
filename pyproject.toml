@@ -37,4 +37,4 @@ warn_redundant_casts = true
 warn_return_any = true
 strict_optional = true
 ignore_missing_imports = true
-files = ["main.py", "tools", "tests"]
+files = ["main.py", "tools", "tests", "utils"]

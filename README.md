@@ -12,6 +12,18 @@ uv run python main.py
 
 By default, FastMCP serves on `http://127.0.0.1:8000/mcp`.
 
+You can override host/port using a local `.env` file:
+
+```bash
+cp .env.example .env
+set -a && source .env && set +a
+```
+
+Environment variables:
+
+- `MCP_HOST` (default: `127.0.0.1`)
+- `MCP_PORT` (default: `8000`)
+
 ## API Baseline (validated on 2026-03-08)
 
 - API base URL: `https://data.gov.ma/data/api/3/action`

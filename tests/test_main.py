@@ -2,18 +2,50 @@ import main
 
 
 def test_main_runs_streamable_http(monkeypatch):
-    called = {"inject": False, "transport": None}
+    called = {"inject": False, "transport": None, "create": False}
 
     def _fake_inject() -> None:
         called["inject"] = True
 
-    def _fake_run(*, transport: str) -> None:
-        called["transport"] = transport
+    class _FakeServer:
+        def run(self, *, transport: str) -> None:
+            called["transport"] = transport
 
     monkeypatch.setattr("main.truststore.inject_into_ssl", _fake_inject)
-    monkeypatch.setattr("main.mcp.run", _fake_run)
+
+    def _fake_create_server():
+        called["create"] = True
+        return _FakeServer()
+
+    monkeypatch.setattr("main.create_server", _fake_create_server)
 
     main.main()
 
     assert called["inject"] is True
+    assert called["create"] is True
     assert called["transport"] == "streamable-http"
+
+
+def test_main_handles_keyboard_interrupt(monkeypatch):
+    called = {"inject": False, "create": False}
+
+    def _fake_inject() -> None:
+        called["inject"] = True
+
+    class _FakeServer:
+        def run(self, *, transport: str) -> None:
+            _ = transport
+            raise KeyboardInterrupt()
+
+    monkeypatch.setattr("main.truststore.inject_into_ssl", _fake_inject)
+
+    def _fake_create_server():
+        called["create"] = True
+        return _FakeServer()
+
+    monkeypatch.setattr("main.create_server", _fake_create_server)
+
+    main.main()
+
+    assert called["inject"] is True
+    assert called["create"] is True
