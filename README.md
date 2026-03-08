@@ -2,6 +2,16 @@
 
 MCP server for the Moroccan Open Data portal ([data.gov.ma](https://data.gov.ma)).
 
+## Run MCP Server (HTTP Transport)
+
+The server uses the official FastMCP streamable HTTP transport.
+
+```bash
+uv run python main.py
+```
+
+By default, FastMCP serves on `http://127.0.0.1:8000/mcp`.
+
 ## API Baseline (validated on 2026-03-08)
 
 - API base URL: `https://data.gov.ma/data/api/3/action`
@@ -25,26 +35,12 @@ MCP server for the Moroccan Open Data portal ([data.gov.ma](https://data.gov.ma)
 
 ```text
 datagovma-mcp/
-  src/datagovma_mcp/
-    config.py              # base URL, timeouts, retries
-    ckan_client.py         # HTTP wrapper + CKAN response validation
-    errors.py              # typed API and transport errors
-    server.py              # MCP server bootstrap and tool registration
-    tools/
-      status.py            # status_show
-      datasets.py          # package_search, package_show, package_list
-      resources.py         # resource_show (+ resource_search later)
-      organizations.py     # organization_list, organization_show
-      groups.py            # group_list, group_show
-      facets.py            # package_search facet helpers
+  main.py                  # MCP server entrypoint (streamable HTTP)
+  tools/
+    status.py              # status_show tool implementation
   tests/
-    test_client.py
-    tools/
-      test_status.py
-      test_datasets.py
-      test_resources.py
-      test_organizations.py
-      test_groups.py
+    test_status.py
+    test_main.py
 ```
 
 ## Tool roadmap (build + test one by one)

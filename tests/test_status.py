@@ -1,10 +1,11 @@
 import asyncio
 import json
+from typing import Any, cast
 
 import httpx
 import pytest
 
-from tools.status import CKANAPIError, get_portal_status
+from tools.status import CKANAPIError, get_portal_status, register_status_tool
 
 
 class _FakeResponse:
@@ -111,3 +112,51 @@ def test_get_portal_status_raises_on_http_error(monkeypatch: pytest.MonkeyPatch)
 
     with pytest.raises(CKANAPIError, match="Request failed"):
         asyncio.run(get_portal_status())
+
+
+class _FakeMCP:
+    def __init__(self):
+        self.tools = {}
+
+    def tool(self, name: str | None = None):
+        def _decorator(func):
+            tool_name = name or func.__name__
+            self.tools[tool_name] = func
+            return func
+
+        return _decorator
+
+
+def test_register_status_tool_registers_decorated_tool(monkeypatch: pytest.MonkeyPatch):
+    async def _fake_get_portal_status(
+        api_base_url: str,
+        timeout_seconds: float,
+        verify_ssl: bool,
+    ):
+        return {
+            "api_base_url": api_base_url,
+            "status_url": f"{api_base_url}/status_show",
+            "site_title": "Test Portal",
+            "site_description": "",
+            "site_url": "https://data.gov.ma",
+            "ckan_version": "2.9.11",
+            "locale_default": "fr",
+            "extensions": [],
+        }
+
+    monkeypatch.setattr("tools.status.get_portal_status", _fake_get_portal_status)
+    fake_mcp = _FakeMCP()
+    register_status_tool(cast(Any, fake_mcp))
+
+    assert "get_portal_status" in fake_mcp.tools
+
+    result = asyncio.run(
+        fake_mcp.tools["get_portal_status"](
+            api_base_url="https://example.invalid/api/3/action",
+            timeout_seconds=1.0,
+            verify_ssl=False,
+        )
+    )
+
+    assert result["site_title"] == "Test Portal"
+    assert result["status_url"] == "https://example.invalid/api/3/action/status_show"

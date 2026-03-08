@@ -7,6 +7,7 @@ import ssl
 from typing import TypedDict
 
 import httpx
+from mcp.server.fastmcp import FastMCP
 
 DEFAULT_API_BASE_URL = "https://data.gov.ma/data/api/3/action"
 
@@ -119,3 +120,28 @@ async def get_portal_status(
         "locale_default": _as_optional_str(result.get("locale_default")),
         "extensions": extensions,
     }
+
+
+def register_status_tool(mcp: FastMCP) -> None:
+    """Register the status MCP tool."""
+
+    @mcp.tool(name="get_portal_status")
+    async def get_portal_status_tool(
+        api_base_url: str = DEFAULT_API_BASE_URL,
+        timeout_seconds: float = 15.0,
+        verify_ssl: bool = True,
+    ) -> PortalStatus:
+        """
+        Return metadata about the Moroccan Open Data CKAN portal.
+
+        Args:
+            api_base_url: CKAN Action API base URL.
+            timeout_seconds: Upstream request timeout in seconds.
+            verify_ssl: Whether HTTPS certificates must be verified.
+        """
+
+        return await get_portal_status(
+            api_base_url=api_base_url,
+            timeout_seconds=timeout_seconds,
+            verify_ssl=verify_ssl,
+        )
