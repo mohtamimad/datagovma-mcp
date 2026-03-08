@@ -13,7 +13,7 @@ def create_server() -> FastMCP:
     """Create and configure the FastMCP server instance."""
 
     host, port = get_server_config()
-    mcp = FastMCP("data.gov.ma MCP server", host=host, port=port)
+    mcp = FastMCP("data.gov.ma MCP server", host=host, port=port, stateless_http=True)
     register_tools(mcp)
     return mcp
 
