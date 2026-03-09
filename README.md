@@ -112,3 +112,13 @@ Each tool should ship with:
 - one unit test for success,
 - one unit test for API error path,
 - one live smoke test (optional flag) against `data.gov.ma`.
+
+## License
+
+This project is open-sourced under the MIT License.
+
+- You can use, modify, and distribute this software, including for commercial use.
+- You must keep the copyright and license notice in copies/substantial portions.
+- The software is provided "as is", without warranty.
+
+See [LICENSE](LICENSE) for the full text.
