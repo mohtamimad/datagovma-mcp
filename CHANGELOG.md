@@ -4,6 +4,13 @@ All notable changes to this project are documented in this file.
 
 This changelog is based on git tags and commit history.
 
+## [0.2.2] - 2026-03-09
+
+### Chore
+
+- add MIT license and project license metadata (`e817240`)
+- ignore local uv cache directory `.uv-cache/` in git
+
 ## [0.2.1] - 2026-03-09
 
 ### Docs
