@@ -1,4 +1,4 @@
-"""Status tool for the Moroccan Open Data CKAN API."""
+"""Status tool implementation for the data.gov.ma CKAN API."""
 
 from __future__ import annotations
 
@@ -13,11 +13,11 @@ DEFAULT_API_BASE_URL = "https://data.gov.ma/data/api/3/action"
 
 
 class CKANAPIError(RuntimeError):
-    """Raised when the CKAN API call fails or returns invalid data."""
+    """Raised when ``status_show`` cannot be fetched or validated."""
 
 
 class PortalStatus(TypedDict):
-    """Normalized status payload returned by ``get_portal_status``."""
+    """Normalized payload shape returned by ``get_portal_status``."""
 
     api_base_url: str
     status_url: str
@@ -30,16 +30,22 @@ class PortalStatus(TypedDict):
 
 
 def _build_status_url(api_base_url: str) -> str:
+    """Build the CKAN ``status_show`` endpoint URL from an API base URL."""
+
     return f"{api_base_url.rstrip('/')}/status_show"
 
 
 def _as_optional_str(value: object) -> str | None:
+    """Return ``value`` when it is a string; otherwise return ``None``."""
+
     if isinstance(value, str):
         return value
     return None
 
 
 def _as_string_list(value: object) -> list[str]:
+    """Return a list containing only string items from a list-like field."""
+
     if not isinstance(value, list):
         return []
     return [item for item in value if isinstance(item, str)]
@@ -51,27 +57,28 @@ async def get_portal_status(
     verify_ssl: bool = True,
 ) -> PortalStatus:
     """
-    Fetch and normalize portal status metadata from CKAN ``status_show``.
+    Fetch and normalize portal metadata from CKAN ``status_show``.
 
     Args:
-        api_base_url: CKAN Action API base URL.
-        timeout_seconds: Request timeout in seconds.
-        verify_ssl: Whether SSL certificates must be verified.
+        api_base_url: CKAN Action API base URL (for example,
+            ``https://data.gov.ma/data/api/3/action``).
+        timeout_seconds: Upstream request timeout in seconds.
+        verify_ssl: Whether to validate HTTPS certificates for the upstream call.
 
     Returns:
-        A normalized status payload with stable keys:
+        A normalized payload with stable keys:
         - ``api_base_url``: Base CKAN Action API URL used for the request.
         - ``status_url``: Resolved ``status_show`` endpoint URL called.
-        - ``site_title``: Portal title from CKAN settings.
-        - ``site_description``: Portal description from CKAN settings.
-        - ``site_url``: Public portal root URL.
-        - ``ckan_version``: CKAN server version string.
-        - ``locale_default``: Default portal locale code.
-        - ``extensions``: Enabled CKAN extension names.
+        - ``site_title``: Portal title from CKAN settings, if present.
+        - ``site_description``: Portal description from CKAN settings, if present.
+        - ``site_url``: Public portal root URL, if present.
+        - ``ckan_version``: CKAN server version string, if present.
+        - ``locale_default``: Default locale code, if present.
+        - ``extensions``: Enabled CKAN extension names (empty list when absent).
 
     Raises:
-        CKANAPIError: On transport errors, invalid JSON, API errors, or
-            malformed response envelopes.
+        CKANAPIError: If the request fails, times out, returns non-JSON data,
+            returns ``success: false``, or has an invalid CKAN envelope.
     """
 
     status_url = _build_status_url(api_base_url)
@@ -123,7 +130,7 @@ async def get_portal_status(
 
 
 def register_status_tool(mcp: FastMCP) -> None:
-    """Register the status MCP tool."""
+    """Register the ``get_portal_status`` MCP tool on a FastMCP instance."""
 
     @mcp.tool(name="get_portal_status")
     async def get_portal_status_tool(
@@ -132,12 +139,15 @@ def register_status_tool(mcp: FastMCP) -> None:
         verify_ssl: bool = True,
     ) -> PortalStatus:
         """
-        Return metadata about the Moroccan Open Data CKAN portal.
+        Return normalized metadata from the CKAN ``status_show`` endpoint.
 
         Args:
             api_base_url: CKAN Action API base URL.
             timeout_seconds: Upstream request timeout in seconds.
             verify_ssl: Whether HTTPS certificates must be verified.
+
+        Returns:
+            A ``PortalStatus`` object with portal identity and runtime metadata.
         """
 
         return await get_portal_status(
