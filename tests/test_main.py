@@ -1,4 +1,4 @@
-import main
+from datagovma_mcp import main
 
 
 def test_main_runs_streamable_http(monkeypatch):
@@ -11,13 +11,13 @@ def test_main_runs_streamable_http(monkeypatch):
         def run(self, *, transport: str) -> None:
             called["transport"] = transport
 
-    monkeypatch.setattr("main.truststore.inject_into_ssl", _fake_inject)
+    monkeypatch.setattr("datagovma_mcp.main.truststore.inject_into_ssl", _fake_inject)
 
     def _fake_create_server():
         called["create"] = True
         return _FakeServer()
 
-    monkeypatch.setattr("main.create_server", _fake_create_server)
+    monkeypatch.setattr("datagovma_mcp.main.create_server", _fake_create_server)
 
     main.main()
 
@@ -37,13 +37,13 @@ def test_main_handles_keyboard_interrupt(monkeypatch):
             _ = transport
             raise KeyboardInterrupt()
 
-    monkeypatch.setattr("main.truststore.inject_into_ssl", _fake_inject)
+    monkeypatch.setattr("datagovma_mcp.main.truststore.inject_into_ssl", _fake_inject)
 
     def _fake_create_server():
         called["create"] = True
         return _FakeServer()
 
-    monkeypatch.setattr("main.create_server", _fake_create_server)
+    monkeypatch.setattr("datagovma_mcp.main.create_server", _fake_create_server)
 
     main.main()
 

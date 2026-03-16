@@ -4,6 +4,19 @@ All notable changes to this project are documented in this file.
 
 This changelog is based on git tags and commit history.
 
+## [0.2.3] - 2026-03-16
+
+### Added
+
+- package the project as an installable Python distribution with a `src/datagovma_mcp` layout
+- add `datagovma-mcp` console script entry point via `pyproject.toml`
+
+### Changed
+
+- migrate imports and tests to package-qualified paths (`datagovma_mcp.*`)
+- lower supported Python baseline to `>=3.11` and align lint/type config targets
+- update README run instructions to use the installed CLI
+
 ## [0.2.2] - 2026-03-09
 
 ### Chore

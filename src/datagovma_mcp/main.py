@@ -5,8 +5,8 @@ from __future__ import annotations
 import truststore
 from mcp.server.fastmcp import FastMCP
 
-from tools import register_tools
-from utils.server_config import get_server_config
+from datagovma_mcp.tools import register_tools
+from datagovma_mcp.utils.server_config import get_server_config
 
 
 def create_server() -> FastMCP:

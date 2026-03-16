@@ -7,7 +7,7 @@ MCP server for the Moroccan Open Data portal ([data.gov.ma](https://data.gov.ma)
 The server uses the official FastMCP streamable HTTP transport.
 
 ```bash
-uv run python main.py
+uv run datagovma-mcp
 ```
 
 By default, FastMCP serves on `http://127.0.0.1:8000/mcp`.
@@ -47,9 +47,11 @@ Environment variables:
 
 ```text
 datagovma-mcp/
-  main.py                  # MCP server entrypoint (streamable HTTP)
-  tools/
-    status.py              # status_show tool implementation
+  src/
+    datagovma_mcp/
+      main.py              # MCP server entrypoint (streamable HTTP)
+      tools/
+        status.py          # status_show tool implementation
   tests/
     test_status.py
     test_main.py

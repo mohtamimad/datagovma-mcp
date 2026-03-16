@@ -5,7 +5,7 @@ from typing import Any, cast
 import httpx
 import pytest
 
-from tools.status import CKANAPIError, get_portal_status, register_status_tool
+from datagovma_mcp.tools.status import CKANAPIError, get_portal_status, register_status_tool
 
 
 class _FakeResponse:
@@ -64,7 +64,7 @@ def _mock_async_client_response(
         response = _FakeResponse(payload, status_code) if payload is not None else None
         return _FakeAsyncClient(response=response, error=error)
 
-    monkeypatch.setattr("tools.status.httpx.AsyncClient", _fake_async_client)
+    monkeypatch.setattr("datagovma_mcp.tools.status.httpx.AsyncClient", _fake_async_client)
 
 
 def test_get_portal_status_success(monkeypatch: pytest.MonkeyPatch):
@@ -144,7 +144,7 @@ def test_register_status_tool_registers_decorated_tool(monkeypatch: pytest.Monke
             "extensions": [],
         }
 
-    monkeypatch.setattr("tools.status.get_portal_status", _fake_get_portal_status)
+    monkeypatch.setattr("datagovma_mcp.tools.status.get_portal_status", _fake_get_portal_status)
     fake_mcp = _FakeMCP()
     register_status_tool(cast(Any, fake_mcp))
 

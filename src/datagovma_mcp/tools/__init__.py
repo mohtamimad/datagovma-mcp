@@ -2,7 +2,7 @@
 
 from mcp.server.fastmcp import FastMCP
 
-from tools.status import register_status_tool
+from datagovma_mcp.tools.status import register_status_tool
 
 
 def register_tools(mcp: FastMCP) -> None:

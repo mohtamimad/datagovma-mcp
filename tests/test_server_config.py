@@ -1,4 +1,4 @@
-from utils.server_config import get_server_config
+from datagovma_mcp.utils.server_config import get_server_config
 
 
 def test_get_server_config_defaults(monkeypatch):
