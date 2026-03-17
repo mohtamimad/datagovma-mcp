@@ -4,6 +4,21 @@ All notable changes to this project are documented in this file.
 
 This changelog is based on git tags and commit history.
 
+## [0.4.0] - 2026-03-17
+
+### Added
+
+- add `get_dataset` MCP tool powered by CKAN `package_show` with normalized core metadata, organization, tags/groups, and resources (`8b4c171`)
+- add dedicated `get_dataset` tool tests for success path, API error path, input validation, and MCP registration wiring (`8b4c171`)
+
+### Changed
+
+- register `get_dataset` in the server tool registry (`8b4c171`)
+
+### Chore
+
+- bump package version to `0.4.0`
+
 ## [0.3.0] - 2026-03-17
 
 ### Added
