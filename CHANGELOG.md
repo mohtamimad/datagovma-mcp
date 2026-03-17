@@ -8,28 +8,28 @@ This changelog is based on git tags and commit history.
 
 ### Added
 
-- add `search_datasets` MCP tool powered by CKAN `package_search` with support for query, filters, pagination, sort, and facets
-- add shared CKAN utility module `datagovma_mcp.utils.ckan` for action URL building, HTTP fetch, envelope validation, and normalization helpers
-- add dedicated search tool tests plus shared test helpers for MCP/client fakes
+- add `search_datasets` MCP tool powered by CKAN `package_search` with support for query, filters, pagination, sort, and facets (`01714cb`)
+- add shared CKAN utility module `datagovma_mcp.utils.ckan` for action URL building, HTTP fetch, envelope validation, and normalization helpers (`01714cb`)
+- add dedicated search tool tests plus shared test helpers for MCP/client fakes (`01714cb`)
 
 ### Changed
 
-- register `search_datasets` in the server tool registry
-- refactor `get_portal_status` to reuse shared CKAN utilities and remove duplicated request/parsing logic
-- add argument-level docstring examples in `search_datasets` for `fq`, `sort`, `facet_fields`, and pagination fields
+- register `search_datasets` in the server tool registry (`01714cb`)
+- refactor `get_portal_status` to reuse shared CKAN utilities and remove duplicated request/parsing logic (`01714cb`)
+- add argument-level docstring examples in `search_datasets` for `fq`, `sort`, `facet_fields`, and pagination fields (`01714cb`)
 
 ## [0.2.3] - 2026-03-16
 
 ### Added
 
-- package the project as an installable Python distribution with a `src/datagovma_mcp` layout
-- add `datagovma-mcp` console script entry point via `pyproject.toml`
+- package the project as an installable Python distribution with a `src/datagovma_mcp` layout (`ce4d556`)
+- add `datagovma-mcp` console script entry point via `pyproject.toml` (`ce4d556`)
 
 ### Changed
 
-- migrate imports and tests to package-qualified paths (`datagovma_mcp.*`)
-- lower supported Python baseline to `>=3.11` and align lint/type config targets
-- update README run instructions to use the installed CLI
+- migrate imports and tests to package-qualified paths `datagovma_mcp.*` (`ce4d556`)
+- lower supported Python baseline to `>=3.11` and align lint/type config targets (`ce4d556`)
+- update README run instructions to use the installed CLI (`ce4d556`)
 
 ## [0.2.2] - 2026-03-09
 
