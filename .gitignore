@@ -1,14 +1,16 @@
 # Python-generated files
 __pycache__/
 *.py[oc]
+*.egg-info/
+pip-wheel-metadata/
 build/
 dist/
 wheels/
-*.egg-info
 .DS_Store
 
 # Virtual environments
 .venv
+venv/
 .env
 
 # Tool caches
@@ -16,3 +18,9 @@ wheels/
 .ruff_cache/
 .pytest_cache/
 .uv-cache/
+.codex/
+
+# Test and coverage artifacts
+.coverage
+.coverage.*
+htmlcov/
