@@ -2,18 +2,20 @@
 
 from __future__ import annotations
 
-import json
-import ssl
 from typing import TypedDict
 
 import httpx
 from mcp.server.fastmcp import FastMCP
 
-DEFAULT_API_BASE_URL = "https://data.gov.ma/data/api/3/action"
+from datagovma_mcp.utils.ckan import (
+    DEFAULT_API_BASE_URL,
+    CKANAPIError,
+    as_optional_str,
+    as_string_list,
+    fetch_ckan_result,
+)
 
-
-class CKANAPIError(RuntimeError):
-    """Raised when ``status_show`` cannot be fetched or validated."""
+__all__ = ["CKANAPIError", "get_portal_status", "register_status_tool"]
 
 
 class PortalStatus(TypedDict):
@@ -27,28 +29,6 @@ class PortalStatus(TypedDict):
     ckan_version: str | None
     locale_default: str | None
     extensions: list[str]
-
-
-def _build_status_url(api_base_url: str) -> str:
-    """Build the CKAN ``status_show`` endpoint URL from an API base URL."""
-
-    return f"{api_base_url.rstrip('/')}/status_show"
-
-
-def _as_optional_str(value: object) -> str | None:
-    """Return ``value`` when it is a string; otherwise return ``None``."""
-
-    if isinstance(value, str):
-        return value
-    return None
-
-
-def _as_string_list(value: object) -> list[str]:
-    """Return a list containing only string items from a list-like field."""
-
-    if not isinstance(value, list):
-        return []
-    return [item for item in value if isinstance(item, str)]
 
 
 async def get_portal_status(
@@ -81,50 +61,23 @@ async def get_portal_status(
             returns ``success: false``, or has an invalid CKAN envelope.
     """
 
-    status_url = _build_status_url(api_base_url)
-    ssl_context: ssl.SSLContext | bool
-    ssl_context = True if verify_ssl else ssl._create_unverified_context()
-    timeout = httpx.Timeout(timeout_seconds)
-
-    try:
-        async with httpx.AsyncClient(
-            timeout=timeout,
-            verify=ssl_context,
-            headers={"Accept": "application/json"},
-        ) as client:
-            response = await client.get(status_url)
-            response.raise_for_status()
-            raw_body = response.text
-    except httpx.TimeoutException as exc:
-        raise CKANAPIError(f"Request timed out for {status_url}") from exc
-    except httpx.HTTPError as exc:
-        raise CKANAPIError(f"Request failed for {status_url}: {exc}") from exc
-
-    try:
-        payload = json.loads(raw_body)
-    except json.JSONDecodeError as exc:
-        raise CKANAPIError("status_show returned non-JSON data") from exc
-
-    if not isinstance(payload, dict):
-        raise CKANAPIError("Malformed CKAN response: root payload must be an object")
-
-    if payload.get("success") is not True:
-        raise CKANAPIError(f"CKAN API error in status_show: {payload.get('error')}")
-
-    result = payload.get("result")
-    if not isinstance(result, dict):
-        raise CKANAPIError("Malformed CKAN response: `result` must be an object")
-
-    extensions = _as_string_list(result.get("extensions"))
+    status_url, result = await fetch_ckan_result(
+        api_base_url=api_base_url,
+        action_name="status_show",
+        timeout_seconds=timeout_seconds,
+        verify_ssl=verify_ssl,
+        client_factory=httpx.AsyncClient,
+    )
+    extensions = as_string_list(result.get("extensions"))
 
     return {
         "api_base_url": api_base_url,
         "status_url": status_url,
-        "site_title": _as_optional_str(result.get("site_title")),
-        "site_description": _as_optional_str(result.get("site_description")),
-        "site_url": _as_optional_str(result.get("site_url")),
-        "ckan_version": _as_optional_str(result.get("ckan_version")),
-        "locale_default": _as_optional_str(result.get("locale_default")),
+        "site_title": as_optional_str(result.get("site_title")),
+        "site_description": as_optional_str(result.get("site_description")),
+        "site_url": as_optional_str(result.get("site_url")),
+        "ckan_version": as_optional_str(result.get("ckan_version")),
+        "locale_default": as_optional_str(result.get("locale_default")),
         "extensions": extensions,
     }
 

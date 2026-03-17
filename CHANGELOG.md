@@ -4,6 +4,20 @@ All notable changes to this project are documented in this file.
 
 This changelog is based on git tags and commit history.
 
+## [0.3.0] - 2026-03-17
+
+### Added
+
+- add `search_datasets` MCP tool powered by CKAN `package_search` with support for query, filters, pagination, sort, and facets
+- add shared CKAN utility module `datagovma_mcp.utils.ckan` for action URL building, HTTP fetch, envelope validation, and normalization helpers
+- add dedicated search tool tests plus shared test helpers for MCP/client fakes
+
+### Changed
+
+- register `search_datasets` in the server tool registry
+- refactor `get_portal_status` to reuse shared CKAN utilities and remove duplicated request/parsing logic
+- add argument-level docstring examples in `search_datasets` for `fq`, `sort`, `facet_fields`, and pagination fields
+
 ## [0.2.3] - 2026-03-16
 
 ### Added
