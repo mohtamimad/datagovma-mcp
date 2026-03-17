@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import ssl
 from collections.abc import Callable
 from typing import Any
@@ -10,6 +11,7 @@ from typing import Any
 import httpx
 
 DEFAULT_API_BASE_URL = "https://data.gov.ma/data/api/3/action"
+logger = logging.getLogger(__name__)
 
 
 class CKANAPIError(RuntimeError):
@@ -75,12 +77,21 @@ async def fetch_ckan_result(
     """
 
     if timeout_seconds <= 0:
+        logger.error("Invalid timeout_seconds=%s for action %s", timeout_seconds, action_name)
         raise ValueError("`timeout_seconds` must be > 0")
 
     action_url = build_action_url(api_base_url, action_name)
     ssl_context: ssl.SSLContext | bool
     ssl_context = True if verify_ssl else ssl._create_unverified_context()
     timeout = httpx.Timeout(timeout_seconds)
+    logger.debug(
+        "Calling CKAN action %s at %s with params=%s timeout=%ss verify_ssl=%s",
+        action_name,
+        action_url,
+        query_params,
+        timeout_seconds,
+        verify_ssl,
+    )
 
     try:
         async with client_factory(
@@ -94,21 +105,41 @@ async def fetch_ckan_result(
                 response = await client.get(action_url, params=query_params)
             response.raise_for_status()
             raw_body = response.text
+            logger.debug(
+                "CKAN action %s responded with status_code=%s body_bytes=%s",
+                action_name,
+                response.status_code,
+                len(raw_body),
+            )
     except httpx.TimeoutException as exc:
+        logger.error("CKAN action %s timed out at %s", action_name, action_url)
         raise CKANAPIError(f"Request timed out for {action_url}") from exc
     except httpx.HTTPError as exc:
+        logger.error("CKAN action %s request failed at %s: %s", action_name, action_url, exc)
         raise CKANAPIError(f"Request failed for {action_url}: {exc}") from exc
 
     try:
         payload = json.loads(raw_body)
     except json.JSONDecodeError as exc:
+        logger.error("CKAN action %s returned non-JSON data at %s", action_name, action_url)
         raise CKANAPIError(f"{action_name} returned non-JSON data") from exc
 
     if not isinstance(payload, dict):
+        logger.error(
+            "CKAN action %s returned malformed payload root type=%s",
+            action_name,
+            type(payload),
+        )
         raise CKANAPIError("Malformed CKAN response: root payload must be an object")
 
     if payload.get("success") is not True:
+        logger.error(
+            "CKAN action %s failed with success=false error=%s",
+            action_name,
+            payload.get("error"),
+        )
         raise CKANAPIError(f"CKAN API error in {action_name}: {payload.get('error')}")
 
     result = as_str_object_dict(payload.get("result"), field_name="result")
+    logger.debug("CKAN action %s succeeded", action_name)
     return action_url, result

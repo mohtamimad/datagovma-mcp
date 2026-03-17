@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from typing import TypedDict
 
 import httpx
@@ -16,6 +17,7 @@ from datagovma_mcp.utils.ckan import (
 )
 
 __all__ = ["CKANAPIError", "get_portal_status", "register_status_tool"]
+logger = logging.getLogger(__name__)
 
 
 class PortalStatus(TypedDict):
@@ -60,6 +62,7 @@ async def get_portal_status(
         CKANAPIError: If the request fails, times out, returns non-JSON data,
             returns ``success: false``, or has an invalid CKAN envelope.
     """
+    logger.info("Fetching portal status from %s", api_base_url)
 
     status_url, result = await fetch_ckan_result(
         api_base_url=api_base_url,
@@ -69,6 +72,12 @@ async def get_portal_status(
         client_factory=httpx.AsyncClient,
     )
     extensions = as_string_list(result.get("extensions"))
+    logger.info(
+        "Portal status fetched from %s with ckan_version=%s extensions=%s",
+        status_url,
+        as_optional_str(result.get("ckan_version")),
+        len(extensions),
+    )
 
     return {
         "api_base_url": api_base_url,
@@ -84,6 +93,7 @@ async def get_portal_status(
 
 def register_status_tool(mcp: FastMCP) -> None:
     """Register the ``get_portal_status`` MCP tool on a FastMCP instance."""
+    logger.debug("Registering MCP tool get_portal_status")
 
     @mcp.tool(name="get_portal_status")
     async def get_portal_status_tool(

@@ -23,6 +23,7 @@ Environment variables:
 
 - `MCP_HOST` (default: `127.0.0.1`)
 - `MCP_PORT` (default: `8000`)
+- `MCP_LOG_LEVEL` (default: `INFO`; one of `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`)
 
 ## API Baseline (validated on 2026-03-08)
 

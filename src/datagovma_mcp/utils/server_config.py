@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+import logging
 import os
+
+logger = logging.getLogger(__name__)
 
 
 def get_server_config() -> tuple[str, int]:
@@ -16,13 +19,17 @@ def get_server_config() -> tuple[str, int]:
 
     host = os.getenv("MCP_HOST", "127.0.0.1")
     raw_port = os.getenv("MCP_PORT", "8000")
+    logger.debug("Resolving server config from environment host=%s port=%s", host, raw_port)
 
     try:
         port = int(raw_port)
     except ValueError as exc:  # pragma: no cover - validated by tests
+        logger.error("Invalid MCP_PORT value: %r", raw_port)
         raise ValueError(f"Invalid MCP_PORT value: {raw_port!r}") from exc
 
     if not (0 < port < 65536):  # pragma: no cover - validated by tests
+        logger.error("MCP_PORT must be between 1 and 65535, got %s", port)
         raise ValueError(f"MCP_PORT must be between 1 and 65535, got {port}")
 
+    logger.debug("Server config resolved host=%s port=%s", host, port)
     return host, port

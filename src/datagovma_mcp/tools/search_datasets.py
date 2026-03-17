@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 from typing import TypedDict, cast
 
 import httpx
@@ -16,6 +17,8 @@ from datagovma_mcp.utils.ckan import (
     fetch_ckan_result,
     is_int,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class DatasetSearchResult(TypedDict):
@@ -160,6 +163,16 @@ async def search_datasets(
     normalized_rows = _validate_non_negative_int(rows, field_name="rows")
     normalized_start = _validate_non_negative_int(start, field_name="start")
     normalized_facet_fields = _normalize_facet_fields(facet_fields)
+    logger.info(
+        "Searching datasets from %s q=%r fq=%r rows=%s start=%s sort=%r facets=%s",
+        api_base_url,
+        normalized_q,
+        normalized_fq,
+        normalized_rows,
+        normalized_start,
+        normalized_sort,
+        len(normalized_facet_fields),
+    )
 
     query_params: dict[str, str | int] = {
         "rows": normalized_rows,
@@ -196,6 +209,12 @@ async def search_datasets(
     normalized_results: list[dict[str, object]] = []
     for index, item in enumerate(raw_results):
         normalized_results.append(as_str_object_dict(item, field_name=f"result.results[{index}]"))
+    logger.info(
+        "Dataset search completed from %s count=%s returned=%s",
+        search_url,
+        count_value,
+        len(normalized_results),
+    )
 
     return {
         "api_base_url": api_base_url,
@@ -216,6 +235,7 @@ async def search_datasets(
 
 def register_search_datasets_tool(mcp: FastMCP) -> None:
     """Register the ``search_datasets`` MCP tool on a FastMCP instance."""
+    logger.debug("Registering MCP tool search_datasets")
 
     @mcp.tool(name="search_datasets")
     async def search_datasets_tool(

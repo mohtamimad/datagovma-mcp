@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from typing import TypedDict
 
 import httpx
@@ -16,6 +17,7 @@ from datagovma_mcp.utils.ckan import (
 )
 
 __all__ = ["CKANAPIError", "get_dataset", "register_get_dataset_tool"]
+logger = logging.getLogger(__name__)
 
 
 class DatasetDetails(TypedDict):
@@ -109,6 +111,7 @@ async def get_dataset(
     """
 
     normalized_id = _normalize_dataset_id(id)
+    logger.info("Fetching dataset id=%s from %s", normalized_id, api_base_url)
 
     dataset_url, result = await fetch_ckan_result(
         api_base_url=api_base_url,
@@ -128,6 +131,13 @@ async def get_dataset(
         resources.append(as_str_object_dict(item, field_name=f"result.resources[{index}]"))
 
     organization_name, organization_title = _normalize_organization(result.get("organization"))
+    logger.info(
+        "Dataset fetched from %s id=%s resources=%s organization=%s",
+        dataset_url,
+        normalized_id,
+        len(resources),
+        organization_name,
+    )
 
     return {
         "api_base_url": api_base_url,
@@ -152,6 +162,7 @@ async def get_dataset(
 
 def register_get_dataset_tool(mcp: FastMCP) -> None:
     """Register the ``get_dataset`` MCP tool on a FastMCP instance."""
+    logger.debug("Registering MCP tool get_dataset")
 
     @mcp.tool(name="get_dataset")
     async def get_dataset_tool(
