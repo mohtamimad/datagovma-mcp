@@ -4,6 +4,20 @@ All notable changes to this project are documented in this file.
 
 This changelog is based on git tags and commit history.
 
+## [0.6.0] - 2026-03-18
+
+### Added
+
+- add `list_datasets` MCP tool powered by CKAN `package_list` with `limit`/`offset` paging and normalized string-name results (`e680cb6`)
+- add dedicated `list_datasets` tests for success path, API error path, input validation, and MCP registration wiring (`e680cb6`)
+- add shared `utils/normalizers.py` and `utils/validators.py` modules for reusable normalization and validation helpers (`e680cb6`)
+
+### Changed
+
+- register `list_datasets` in the server tool registry (`e680cb6`)
+- split generic helpers out of `utils.ckan` and keep CKAN transport/envelope handling centralized there (`e680cb6`)
+- add `fetch_ckan_action_result` to support CKAN actions with non-object `result` payloads while preserving object validation in `fetch_ckan_result` (`e680cb6`)
+
 ## [0.5.0] - 2026-03-18
 
 ### Added
