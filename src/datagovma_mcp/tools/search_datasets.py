@@ -1,4 +1,4 @@
-"""Dataset search tool implementation for the CKAN ``package_search`` API."""
+"""Dataset search tool for Morocco Open Data Government (data.gov.ma)."""
 
 from __future__ import annotations
 
@@ -234,7 +234,7 @@ async def search_datasets(
 
 
 def register_search_datasets_tool(mcp: FastMCP) -> None:
-    """Register the ``search_datasets`` MCP tool on a FastMCP instance."""
+    """Register the ``search_datasets`` tool for Morocco's open data portal."""
     logger.debug("Registering MCP tool search_datasets")
 
     @mcp.tool(name="search_datasets")
@@ -250,10 +250,15 @@ def register_search_datasets_tool(mcp: FastMCP) -> None:
         verify_ssl: bool = True,
     ) -> DatasetSearchResult:
         """
-        Search and paginate CKAN datasets via ``package_search``.
+        Search datasets on Morocco Open Data Government (``data.gov.ma``).
+
+        This tool wraps CKAN ``package_search`` and is optimized for
+        open-data discovery, paging, and facet exploration on the Moroccan
+        government open data portal.
 
         Args:
-            q: Full-text query string (example: ``"budget"``).
+            q: Full-text query string over dataset metadata
+                (example: ``"budget"``).
             fq: Optional CKAN filter query string
                 (example: ``"organization:ministry-of-finance"``).
             rows: Number of datasets requested (example: ``10``).
@@ -268,7 +273,8 @@ def register_search_datasets_tool(mcp: FastMCP) -> None:
             verify_ssl: Whether HTTPS certificates must be verified (example: ``True``).
 
         Returns:
-            A ``DatasetSearchResult`` with pagination metadata and matching datasets.
+            ``DatasetSearchResult`` including total ``count``, current page
+            ``results``, applied pagination/sort metadata, and optional facets.
         """
 
         return await search_datasets(

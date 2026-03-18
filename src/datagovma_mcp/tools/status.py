@@ -1,4 +1,4 @@
-"""Status tool implementation for the data.gov.ma CKAN API."""
+"""Portal status tool for Morocco Open Data Government (data.gov.ma)."""
 
 from __future__ import annotations
 
@@ -92,7 +92,7 @@ async def get_portal_status(
 
 
 def register_status_tool(mcp: FastMCP) -> None:
-    """Register the ``get_portal_status`` MCP tool on a FastMCP instance."""
+    """Register the ``get_portal_status`` tool for Morocco's open data portal."""
     logger.debug("Registering MCP tool get_portal_status")
 
     @mcp.tool(name="get_portal_status")
@@ -102,15 +102,21 @@ def register_status_tool(mcp: FastMCP) -> None:
         verify_ssl: bool = True,
     ) -> PortalStatus:
         """
-        Return normalized metadata from the CKAN ``status_show`` endpoint.
+        Check the Morocco Open Data Government portal runtime metadata.
+
+        This tool calls CKAN ``status_show`` on ``data.gov.ma`` (or another
+        compatible CKAN endpoint) and returns normalized portal information.
+        Use it as a lightweight health/identity check before dataset queries.
 
         Args:
-            api_base_url: CKAN Action API base URL.
-            timeout_seconds: Upstream request timeout in seconds.
+            api_base_url: CKAN Action API base URL for the target portal
+                (default points to Morocco open data: data.gov.ma).
+            timeout_seconds: Upstream request timeout in seconds for CKAN.
             verify_ssl: Whether HTTPS certificates must be verified.
 
         Returns:
-            A ``PortalStatus`` object with portal identity and runtime metadata.
+            ``PortalStatus`` with site identity fields (title, URL, locale),
+            CKAN version, and enabled extensions.
         """
 
         return await get_portal_status(

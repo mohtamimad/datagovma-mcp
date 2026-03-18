@@ -1,4 +1,4 @@
-"""Dataset detail tool implementation for the CKAN ``package_show`` API."""
+"""Dataset detail tool for Morocco Open Data Government (data.gov.ma)."""
 
 from __future__ import annotations
 
@@ -161,7 +161,7 @@ async def get_dataset(
 
 
 def register_get_dataset_tool(mcp: FastMCP) -> None:
-    """Register the ``get_dataset`` MCP tool on a FastMCP instance."""
+    """Register the ``get_dataset`` tool for Morocco's open data portal."""
     logger.debug("Registering MCP tool get_dataset")
 
     @mcp.tool(name="get_dataset")
@@ -172,16 +172,23 @@ def register_get_dataset_tool(mcp: FastMCP) -> None:
         verify_ssl: bool = True,
     ) -> DatasetDetails:
         """
-        Return a single dataset record from CKAN ``package_show``.
+        Get one dataset from Morocco Open Data Government (``data.gov.ma``).
+
+        This tool wraps CKAN ``package_show`` and is optimized for retrieving
+        a single dataset's core metadata and resource list after discovery.
 
         Args:
-            id: Dataset name/slug or UUID.
-            api_base_url: CKAN Action API base URL.
-            timeout_seconds: Upstream request timeout in seconds.
+            id: Dataset identifier accepted by CKAN (name/slug or UUID).
+                A common workflow is to pass a value returned by
+                ``search_datasets``.
+            api_base_url: CKAN Action API base URL for the target portal
+                (default points to Morocco open data: data.gov.ma).
+            timeout_seconds: Upstream request timeout in seconds for CKAN.
             verify_ssl: Whether HTTPS certificates must be verified.
 
         Returns:
-            A ``DatasetDetails`` object with core metadata and resources.
+            ``DatasetDetails`` with normalized fields such as title, notes,
+            organization, tags/groups, and full resource metadata.
         """
 
         return await get_dataset(
