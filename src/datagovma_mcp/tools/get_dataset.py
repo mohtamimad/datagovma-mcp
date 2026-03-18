@@ -11,10 +11,10 @@ from mcp.server.fastmcp import FastMCP
 from datagovma_mcp.utils.ckan import (
     DEFAULT_API_BASE_URL,
     CKANAPIError,
-    as_optional_str,
     as_str_object_dict,
     fetch_ckan_result,
 )
+from datagovma_mcp.utils.normalizers import as_optional_str
 
 __all__ = ["CKANAPIError", "get_dataset", "register_get_dataset_tool"]
 logger = logging.getLogger(__name__)

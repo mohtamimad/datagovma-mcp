@@ -24,28 +24,6 @@ def build_action_url(api_base_url: str, action_name: str) -> str:
     return f"{api_base_url.rstrip('/')}/{action_name}"
 
 
-def as_optional_str(value: object) -> str | None:
-    """Return ``value`` when it is a string; otherwise return ``None``."""
-
-    if isinstance(value, str):
-        return value
-    return None
-
-
-def as_string_list(value: object) -> list[str]:
-    """Return a list containing only string items from a list-like field."""
-
-    if not isinstance(value, list):
-        return []
-    return [item for item in value if isinstance(item, str)]
-
-
-def is_int(value: object) -> bool:
-    """Return whether ``value`` is an integer (excluding booleans)."""
-
-    return isinstance(value, int) and not isinstance(value, bool)
-
-
 def as_str_object_dict(value: object, *, field_name: str) -> dict[str, object]:
     """Validate that ``value`` is a dictionary with string keys."""
 
@@ -60,7 +38,7 @@ def as_str_object_dict(value: object, *, field_name: str) -> dict[str, object]:
     return normalized
 
 
-async def fetch_ckan_result(
+async def fetch_ckan_action_result(
     *,
     api_base_url: str,
     action_name: str,
@@ -68,12 +46,13 @@ async def fetch_ckan_result(
     verify_ssl: bool,
     query_params: dict[str, str | int] | None = None,
     client_factory: Callable[..., Any] = httpx.AsyncClient,
-) -> tuple[str, dict[str, object]]:
+) -> tuple[str, object]:
     """
-    Call a CKAN action endpoint and return the validated ``result`` object.
+    Call a CKAN action endpoint and return the validated raw ``result`` value.
 
     Returns:
-        Tuple of ``(action_url, result_dict)``.
+        Tuple of ``(action_url, result_value)`` where ``result_value`` can be
+        either an object or a list depending on the CKAN action.
     """
 
     if timeout_seconds <= 0:
@@ -142,6 +121,32 @@ async def fetch_ckan_result(
         )
         raise CKANAPIError(f"CKAN API error in {action_name}: {payload.get('error')}")
 
-    result = as_str_object_dict(payload.get("result"), field_name="result")
     logger.debug("CKAN action %s succeeded", action_name)
+    return action_url, payload.get("result")
+
+
+async def fetch_ckan_result(
+    *,
+    api_base_url: str,
+    action_name: str,
+    timeout_seconds: float,
+    verify_ssl: bool,
+    query_params: dict[str, str | int] | None = None,
+    client_factory: Callable[..., Any] = httpx.AsyncClient,
+) -> tuple[str, dict[str, object]]:
+    """
+    Call a CKAN action endpoint and return the validated ``result`` object.
+
+    Returns:
+        Tuple of ``(action_url, result_dict)``.
+    """
+    action_url, raw_result = await fetch_ckan_action_result(
+        api_base_url=api_base_url,
+        action_name=action_name,
+        timeout_seconds=timeout_seconds,
+        verify_ssl=verify_ssl,
+        query_params=query_params,
+        client_factory=client_factory,
+    )
+    result = as_str_object_dict(raw_result, field_name="result")
     return action_url, result

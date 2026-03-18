@@ -12,11 +12,11 @@ from mcp.server.fastmcp import FastMCP
 from datagovma_mcp.utils.ckan import (
     DEFAULT_API_BASE_URL,
     CKANAPIError,
-    as_optional_str,
     as_str_object_dict,
     fetch_ckan_result,
-    is_int,
 )
+from datagovma_mcp.utils.normalizers import as_optional_str
+from datagovma_mcp.utils.validators import is_int, validate_non_negative_int
 
 logger = logging.getLogger(__name__)
 
@@ -37,16 +37,6 @@ class DatasetSearchResult(TypedDict):
     results: list[dict[str, object]]
     facets: dict[str, dict[str, int]]
     search_facets: dict[str, object]
-
-
-def _validate_non_negative_int(value: int, *, field_name: str) -> int:
-    """Validate that ``value`` is an integer greater than or equal to zero."""
-
-    if isinstance(value, bool) or not isinstance(value, int):
-        raise ValueError(f"`{field_name}` must be an integer")
-    if value < 0:
-        raise ValueError(f"`{field_name}` must be >= 0")
-    return value
 
 
 def _normalize_optional_string(value: str | None, *, field_name: str) -> str | None:
@@ -160,8 +150,8 @@ async def search_datasets(
     normalized_q = _normalize_optional_string(q, field_name="q")
     normalized_fq = _normalize_optional_string(fq, field_name="fq")
     normalized_sort = _normalize_optional_string(sort, field_name="sort")
-    normalized_rows = _validate_non_negative_int(rows, field_name="rows")
-    normalized_start = _validate_non_negative_int(start, field_name="start")
+    normalized_rows = validate_non_negative_int(rows, field_name="rows")
+    normalized_start = validate_non_negative_int(start, field_name="start")
     normalized_facet_fields = _normalize_facet_fields(facet_fields)
     logger.info(
         "Searching datasets from %s q=%r fq=%r rows=%s start=%s sort=%r facets=%s",

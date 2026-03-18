@@ -11,10 +11,9 @@ from mcp.server.fastmcp import FastMCP
 from datagovma_mcp.utils.ckan import (
     DEFAULT_API_BASE_URL,
     CKANAPIError,
-    as_optional_str,
-    as_string_list,
     fetch_ckan_result,
 )
+from datagovma_mcp.utils.normalizers import as_optional_str, as_string_list
 
 __all__ = ["CKANAPIError", "get_portal_status", "register_status_tool"]
 logger = logging.getLogger(__name__)
