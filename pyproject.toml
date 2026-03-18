@@ -20,12 +20,14 @@ dependencies = [
 
 [project.scripts]
 datagovma-mcp = "datagovma_mcp.main:main"
+datagovma-mcp-stdio = "datagovma_mcp.main:main_stdio"
 
 [dependency-groups]
 dev = [
     "mypy>=1.19.1",
     "pre-commit>=4.5.1",
     "pytest>=9.0.2",
+    "rich>=14.3.3",
     "ruff>=0.15.5",
 ]
 

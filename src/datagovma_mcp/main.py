@@ -8,7 +8,7 @@ import truststore
 from mcp.server.fastmcp import FastMCP
 
 from datagovma_mcp.tools import register_tools
-from datagovma_mcp.utils.logging_config import configure_logging
+from datagovma_mcp.utils.logging_config import configure_logging, configure_uvicorn_logging
 from datagovma_mcp.utils.server_config import get_server_config
 
 logger = logging.getLogger(__name__)
@@ -27,6 +27,7 @@ def create_server() -> FastMCP:
 
 def main() -> None:
     log_level = configure_logging()
+    configure_uvicorn_logging()
     logger.info("Starting data.gov.ma MCP server with log level %s", log_level)
     # Apply system certificate trust once at server startup.
     truststore.inject_into_ssl()
