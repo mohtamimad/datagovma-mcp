@@ -186,6 +186,7 @@ async def search_datasets(
         query_params["sort"] = normalized_sort
     if normalized_facet_fields:
         query_params["facet"] = "true"
+        # CKAN expects ``facet.field`` as a JSON-encoded list string.
         query_params["facet.field"] = json.dumps(normalized_facet_fields)
 
     search_url, result = await fetch_ckan_result(

@@ -133,6 +133,8 @@ async def fetch_ckan_result(
         raise CKANAPIError("Malformed CKAN response: root payload must be an object")
 
     if payload.get("success") is not True:
+        # CKAN can return HTTP 200 for application-level failures,
+        # so we must enforce the envelope's ``success`` flag explicitly.
         logger.error(
             "CKAN action %s failed with success=false error=%s",
             action_name,
