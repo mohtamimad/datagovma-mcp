@@ -4,6 +4,27 @@ All notable changes to this project are documented in this file.
 
 This changelog is based on git tags and commit history.
 
+## [0.5.0] - 2026-03-18
+
+### Added
+
+- add project-wide structured logging with environment-driven level configuration across server components (`920672b`)
+- add logging test coverage for configuration behavior and startup integration (`920672b`)
+
+### Changed
+
+- centralize Uvicorn logger propagation and access log level handling in shared logging configuration (`4aac67d`)
+- centralize output format resolution (`auto`, `plain`, `rich`) and support `MCP_LOG_FORMAT` configuration (`4aac67d`)
+
+### Docs
+
+- improve MCP tool docstrings to explicitly describe Morocco Open Data Government usage (`fd5b592`)
+- add clarifying inline comments for CKAN envelope and facet encoding behavior (`f5cea53`)
+
+### Chore
+
+- bump package version to `0.5.0`
+
 ## [0.4.0] - 2026-03-17
 
 ### Added
