@@ -4,6 +4,22 @@ All notable changes to this project are documented in this file.
 
 This changelog is based on git tags and commit history.
 
+## [0.12.0] - 2026-03-19
+
+### Added
+
+- add `get_group` MCP tool powered by CKAN `group_show` with optional `include_datasets` expansion and normalized group metadata (`92c02e2`)
+- add dedicated `get_group` tests for success path, API error path, input validation, and MCP registration wiring (`92c02e2`)
+
+### Changed
+
+- register `get_group` in the server tool registry (`92c02e2`)
+- deduplicate boolean input validation by adding shared `validate_bool` helper and reusing it across organization/group detail tools (`92c02e2`)
+
+### Chore
+
+- bump package version to `0.12.0`
+
 ## [0.11.0] - 2026-03-19
 
 ### Added
