@@ -22,7 +22,7 @@ def test_get_portal_status_success(monkeypatch: pytest.MonkeyPatch):
     }
     mock_async_client_response(
         monkeypatch,
-        target="datagovma_mcp.tools.status.httpx.AsyncClient",
+        target="datagovma_mcp.utils.ckan.httpx.AsyncClient",
         request_url="https://data.gov.ma/data/api/3/action/status_show",
         payload=json.dumps(payload),
     )
@@ -42,7 +42,7 @@ def test_get_portal_status_raises_when_success_false(monkeypatch: pytest.MonkeyP
     }
     mock_async_client_response(
         monkeypatch,
-        target="datagovma_mcp.tools.status.httpx.AsyncClient",
+        target="datagovma_mcp.utils.ckan.httpx.AsyncClient",
         request_url="https://data.gov.ma/data/api/3/action/status_show",
         payload=json.dumps(payload),
     )
@@ -54,7 +54,7 @@ def test_get_portal_status_raises_when_success_false(monkeypatch: pytest.MonkeyP
 def test_get_portal_status_raises_on_non_json_response(monkeypatch: pytest.MonkeyPatch):
     mock_async_client_response(
         monkeypatch,
-        target="datagovma_mcp.tools.status.httpx.AsyncClient",
+        target="datagovma_mcp.utils.ckan.httpx.AsyncClient",
         request_url="https://data.gov.ma/data/api/3/action/status_show",
         payload="<html>Request Rejected</html>",
     )
@@ -66,7 +66,7 @@ def test_get_portal_status_raises_on_non_json_response(monkeypatch: pytest.Monke
 def test_get_portal_status_raises_on_http_error(monkeypatch: pytest.MonkeyPatch):
     mock_async_client_response(
         monkeypatch,
-        target="datagovma_mcp.tools.status.httpx.AsyncClient",
+        target="datagovma_mcp.utils.ckan.httpx.AsyncClient",
         request_url="https://data.gov.ma/data/api/3/action/status_show",
         payload='{"success": true}',
         status_code=502,

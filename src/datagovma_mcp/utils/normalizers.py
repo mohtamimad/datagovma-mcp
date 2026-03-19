@@ -27,3 +27,14 @@ def as_optional_int(value: object) -> int | None:
     if is_int(value):
         return cast(int, value)
     return None
+
+
+def normalize_optional_string(value: str | None, *, field_name: str) -> str | None:
+    """Normalize optional string input by trimming and collapsing blanks to ``None``."""
+
+    if value is None:
+        return None
+    if not isinstance(value, str):
+        raise ValueError(f"`{field_name}` must be a string")
+    normalized = value.strip()
+    return normalized or None

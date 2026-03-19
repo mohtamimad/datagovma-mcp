@@ -5,7 +5,6 @@ from __future__ import annotations
 import logging
 from typing import TypedDict
 
-import httpx
 from mcp.server.fastmcp import FastMCP
 
 from datagovma_mcp.utils.ckan import (
@@ -76,7 +75,6 @@ async def get_resource(
         timeout_seconds=timeout_seconds,
         verify_ssl=verify_ssl,
         query_params={"id": normalized_id},
-        client_factory=httpx.AsyncClient,
     )
     logger.info(
         "Resource fetched from %s id=%s package_id=%s format=%s",

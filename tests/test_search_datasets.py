@@ -29,7 +29,7 @@ def test_search_datasets_success(monkeypatch: pytest.MonkeyPatch):
     calls: list[dict[str, object]] = []
     mock_async_client_response(
         monkeypatch,
-        target="datagovma_mcp.tools.search_datasets.httpx.AsyncClient",
+        target="datagovma_mcp.utils.ckan.httpx.AsyncClient",
         request_url="https://data.gov.ma/data/api/3/action/package_search",
         payload=json.dumps(payload),
         calls=calls,
@@ -77,7 +77,7 @@ def test_search_datasets_raises_when_success_false(monkeypatch: pytest.MonkeyPat
     }
     mock_async_client_response(
         monkeypatch,
-        target="datagovma_mcp.tools.search_datasets.httpx.AsyncClient",
+        target="datagovma_mcp.utils.ckan.httpx.AsyncClient",
         request_url="https://data.gov.ma/data/api/3/action/package_search",
         payload=json.dumps(payload),
     )

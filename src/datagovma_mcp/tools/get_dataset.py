@@ -5,7 +5,6 @@ from __future__ import annotations
 import logging
 from typing import TypedDict
 
-import httpx
 from mcp.server.fastmcp import FastMCP
 
 from datagovma_mcp.utils.ckan import (
@@ -109,7 +108,6 @@ async def get_dataset(
         timeout_seconds=timeout_seconds,
         verify_ssl=verify_ssl,
         query_params={"id": normalized_id},
-        client_factory=httpx.AsyncClient,
     )
 
     raw_resources = result.get("resources")

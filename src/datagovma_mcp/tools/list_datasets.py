@@ -5,7 +5,6 @@ from __future__ import annotations
 import logging
 from typing import TypedDict
 
-import httpx
 from mcp.server.fastmcp import FastMCP
 
 from datagovma_mcp.utils.ckan import (
@@ -91,7 +90,6 @@ async def list_datasets(
         timeout_seconds=timeout_seconds,
         verify_ssl=verify_ssl,
         query_params={"limit": normalized_limit, "offset": normalized_offset},
-        client_factory=httpx.AsyncClient,
     )
     datasets = _normalize_dataset_names(raw_result)
     logger.info("Dataset list fetched from %s returned=%s", list_url, len(datasets))

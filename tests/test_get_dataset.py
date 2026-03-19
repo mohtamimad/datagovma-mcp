@@ -32,7 +32,7 @@ def test_get_dataset_success(monkeypatch: pytest.MonkeyPatch):
     calls: list[dict[str, object]] = []
     mock_async_client_response(
         monkeypatch,
-        target="datagovma_mcp.tools.get_dataset.httpx.AsyncClient",
+        target="datagovma_mcp.utils.ckan.httpx.AsyncClient",
         request_url="https://data.gov.ma/data/api/3/action/package_show",
         payload=json.dumps(payload),
         calls=calls,
@@ -63,7 +63,7 @@ def test_get_dataset_raises_when_success_false(monkeypatch: pytest.MonkeyPatch):
     }
     mock_async_client_response(
         monkeypatch,
-        target="datagovma_mcp.tools.get_dataset.httpx.AsyncClient",
+        target="datagovma_mcp.utils.ckan.httpx.AsyncClient",
         request_url="https://data.gov.ma/data/api/3/action/package_show",
         payload=json.dumps(payload),
     )

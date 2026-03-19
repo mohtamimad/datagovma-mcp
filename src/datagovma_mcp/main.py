@@ -10,7 +10,7 @@ from mcp.server.fastmcp import FastMCP
 
 from datagovma_mcp.tools import register_tools
 from datagovma_mcp.utils.logging_config import configure_logging, configure_uvicorn_logging
-from datagovma_mcp.utils.server_config import get_uvicorn_server_config
+from datagovma_mcp.utils.server_config import get_server_config, get_uvicorn_server_config
 
 logger = logging.getLogger(__name__)
 
@@ -18,12 +18,12 @@ logger = logging.getLogger(__name__)
 def create_server() -> FastMCP:
     """Create and configure the FastMCP server instance."""
 
-    server_config = get_uvicorn_server_config()
-    logger.info("Creating MCP server on %s:%s", server_config.host, server_config.port)
+    host, port = get_server_config()
+    logger.info("Creating MCP server on %s:%s", host, port)
     mcp = FastMCP(
         "data.gov.ma MCP server",
-        host=server_config.host,
-        port=server_config.port,
+        host=host,
+        port=port,
         stateless_http=True,
     )
     register_tools(mcp)

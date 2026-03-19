@@ -12,6 +12,7 @@ import httpx
 
 DEFAULT_API_BASE_URL = "https://data.gov.ma/data/api/3/action"
 logger = logging.getLogger(__name__)
+ClientFactory = Callable[..., Any]
 
 
 class CKANAPIError(RuntimeError):
@@ -45,7 +46,7 @@ async def fetch_ckan_action_result(
     timeout_seconds: float,
     verify_ssl: bool,
     query_params: dict[str, str | int] | None = None,
-    client_factory: Callable[..., Any] = httpx.AsyncClient,
+    client_factory: ClientFactory | None = None,
 ) -> tuple[str, object]:
     """
     Call a CKAN action endpoint and return the validated raw ``result`` value.
@@ -72,8 +73,10 @@ async def fetch_ckan_action_result(
         verify_ssl,
     )
 
+    resolved_client_factory = client_factory or httpx.AsyncClient
+
     try:
-        async with client_factory(
+        async with resolved_client_factory(
             timeout=timeout,
             verify=ssl_context,
             headers={"Accept": "application/json"},
@@ -132,7 +135,7 @@ async def fetch_ckan_result(
     timeout_seconds: float,
     verify_ssl: bool,
     query_params: dict[str, str | int] | None = None,
-    client_factory: Callable[..., Any] = httpx.AsyncClient,
+    client_factory: ClientFactory | None = None,
 ) -> tuple[str, dict[str, object]]:
     """
     Call a CKAN action endpoint and return the validated ``result`` object.

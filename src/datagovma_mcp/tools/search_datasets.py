@@ -6,7 +6,6 @@ import json
 import logging
 from typing import TypedDict, cast
 
-import httpx
 from mcp.server.fastmcp import FastMCP
 
 from datagovma_mcp.utils.ckan import (
@@ -15,7 +14,7 @@ from datagovma_mcp.utils.ckan import (
     as_str_object_dict,
     fetch_ckan_result,
 )
-from datagovma_mcp.utils.normalizers import as_optional_str
+from datagovma_mcp.utils.normalizers import as_optional_str, normalize_optional_string
 from datagovma_mcp.utils.validators import is_int, validate_non_negative_int
 
 logger = logging.getLogger(__name__)
@@ -37,17 +36,6 @@ class DatasetSearchResult(TypedDict):
     results: list[dict[str, object]]
     facets: dict[str, dict[str, int]]
     search_facets: dict[str, object]
-
-
-def _normalize_optional_string(value: str | None, *, field_name: str) -> str | None:
-    """Return a stripped string or ``None`` for empty/omitted values."""
-
-    if value is None:
-        return None
-    if not isinstance(value, str):
-        raise ValueError(f"`{field_name}` must be a string")
-    normalized = value.strip()
-    return normalized or None
 
 
 def _normalize_facet_fields(facet_fields: list[str] | None) -> list[str]:
@@ -147,9 +135,9 @@ async def search_datasets(
             returns ``success: false``, or has an invalid CKAN envelope.
     """
 
-    normalized_q = _normalize_optional_string(q, field_name="q")
-    normalized_fq = _normalize_optional_string(fq, field_name="fq")
-    normalized_sort = _normalize_optional_string(sort, field_name="sort")
+    normalized_q = normalize_optional_string(q, field_name="q")
+    normalized_fq = normalize_optional_string(fq, field_name="fq")
+    normalized_sort = normalize_optional_string(sort, field_name="sort")
     normalized_rows = validate_non_negative_int(rows, field_name="rows")
     normalized_start = validate_non_negative_int(start, field_name="start")
     normalized_facet_fields = _normalize_facet_fields(facet_fields)
@@ -185,7 +173,6 @@ async def search_datasets(
         timeout_seconds=timeout_seconds,
         verify_ssl=verify_ssl,
         query_params=query_params,
-        client_factory=httpx.AsyncClient,
     )
 
     count = result.get("count")

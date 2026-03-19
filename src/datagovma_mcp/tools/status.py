@@ -5,7 +5,6 @@ from __future__ import annotations
 import logging
 from typing import TypedDict
 
-import httpx
 from mcp.server.fastmcp import FastMCP
 
 from datagovma_mcp.utils.ckan import (
@@ -68,7 +67,6 @@ async def get_portal_status(
         action_name="status_show",
         timeout_seconds=timeout_seconds,
         verify_ssl=verify_ssl,
-        client_factory=httpx.AsyncClient,
     )
     extensions = as_string_list(result.get("extensions"))
     logger.info(
