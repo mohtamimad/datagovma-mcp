@@ -1,4 +1,4 @@
-"""Organization detail tool for Morocco Open Data Government (data.gov.ma)."""
+"""Group detail tool for Morocco Open Data Government (data.gov.ma)."""
 
 from __future__ import annotations
 
@@ -16,15 +16,15 @@ from datagovma_mcp.utils.ckan import (
 from datagovma_mcp.utils.normalizers import as_optional_int, as_optional_str
 from datagovma_mcp.utils.validators import validate_bool, validate_non_empty_str
 
-__all__ = ["CKANAPIError", "get_organization", "register_get_organization_tool"]
+__all__ = ["CKANAPIError", "get_group", "register_get_group_tool"]
 logger = logging.getLogger(__name__)
 
 
-class OrganizationDetails(TypedDict):
-    """Normalized payload shape returned by ``get_organization``."""
+class GroupDetails(TypedDict):
+    """Normalized payload shape returned by ``get_group``."""
 
     api_base_url: str
-    organization_show_url: str
+    group_show_url: str
     requested_id: str
     include_datasets: bool
     id: str | None
@@ -32,7 +32,7 @@ class OrganizationDetails(TypedDict):
     title: str | None
     description: str | None
     state: str | None
-    organization_type: str | None
+    group_type: str | None
     created: str | None
     image_url: str | None
     package_count: int | None
@@ -40,19 +40,19 @@ class OrganizationDetails(TypedDict):
     datasets: list[dict[str, object]]
 
 
-async def get_organization(
+async def get_group(
     id: str,
     include_datasets: bool = False,
     *,
     api_base_url: str = DEFAULT_API_BASE_URL,
     timeout_seconds: float = 15.0,
     verify_ssl: bool = True,
-) -> OrganizationDetails:
+) -> GroupDetails:
     """
-    Fetch and normalize a single organization from CKAN ``organization_show``.
+    Fetch and normalize a single group from CKAN ``group_show``.
 
     Args:
-        id: Organization identifier accepted by CKAN (name/slug or UUID).
+        id: Group identifier accepted by CKAN (name/slug or UUID).
         include_datasets: Whether the response should include linked dataset
             objects in ``result.packages``.
         api_base_url: CKAN Action API base URL.
@@ -60,7 +60,7 @@ async def get_organization(
         verify_ssl: Whether to validate HTTPS certificates for the upstream call.
 
     Returns:
-        A normalized payload with organization metadata and optional datasets.
+        A normalized payload with group metadata and optional datasets.
 
     Raises:
         ValueError: If ``id`` is not a non-empty string or
@@ -75,15 +75,15 @@ async def get_organization(
         field_name="include_datasets",
     )
     logger.info(
-        "Fetching organization id=%s from %s include_datasets=%s",
+        "Fetching group id=%s from %s include_datasets=%s",
         normalized_id,
         api_base_url,
         normalized_include_datasets,
     )
 
-    organization_show_url, result = await fetch_ckan_result(
+    group_show_url, result = await fetch_ckan_result(
         api_base_url=api_base_url,
-        action_name="organization_show",
+        action_name="group_show",
         timeout_seconds=timeout_seconds,
         verify_ssl=verify_ssl,
         query_params={
@@ -103,8 +103,8 @@ async def get_organization(
             datasets.append(as_str_object_dict(item, field_name=f"result.packages[{index}]"))
 
     logger.info(
-        "Organization fetched from %s id=%s package_count=%s datasets=%s",
-        organization_show_url,
+        "Group fetched from %s id=%s package_count=%s datasets=%s",
+        group_show_url,
         normalized_id,
         as_optional_int(result.get("package_count")),
         len(datasets),
@@ -112,7 +112,7 @@ async def get_organization(
 
     return {
         "api_base_url": api_base_url,
-        "organization_show_url": organization_show_url,
+        "group_show_url": group_show_url,
         "requested_id": normalized_id,
         "include_datasets": normalized_include_datasets,
         "id": as_optional_str(result.get("id")),
@@ -120,7 +120,7 @@ async def get_organization(
         "title": as_optional_str(result.get("title")),
         "description": as_optional_str(result.get("description")),
         "state": as_optional_str(result.get("state")),
-        "organization_type": as_optional_str(result.get("type")),
+        "group_type": as_optional_str(result.get("type")),
         "created": as_optional_str(result.get("created")),
         "image_url": as_optional_str(result.get("image_url")),
         "package_count": as_optional_int(result.get("package_count")),
@@ -129,28 +129,28 @@ async def get_organization(
     }
 
 
-def register_get_organization_tool(mcp: FastMCP) -> None:
-    """Register the ``get_organization`` tool for Morocco's open data portal."""
-    logger.debug("Registering MCP tool get_organization")
+def register_get_group_tool(mcp: FastMCP) -> None:
+    """Register the ``get_group`` tool for Morocco's open data portal."""
+    logger.debug("Registering MCP tool get_group")
 
-    @mcp.tool(name="get_organization")
-    async def get_organization_tool(
+    @mcp.tool(name="get_group")
+    async def get_group_tool(
         id: str,
         include_datasets: bool = False,
         api_base_url: str = DEFAULT_API_BASE_URL,
         timeout_seconds: float = 15.0,
         verify_ssl: bool = True,
-    ) -> OrganizationDetails:
+    ) -> GroupDetails:
         """
-        Get one organization from Morocco Open Data Government (``data.gov.ma``).
+        Get one group from Morocco Open Data Government (``data.gov.ma``).
 
-        This tool wraps CKAN ``organization_show`` and is optimized for
-        retrieving organization metadata, with optional dataset expansion.
+        This tool wraps CKAN ``group_show`` and is optimized for retrieving
+        group metadata, with optional dataset expansion.
 
         Args:
-            id: Organization identifier accepted by CKAN (name/slug or UUID).
+            id: Group identifier accepted by CKAN (name/slug or UUID).
                 A common workflow is to pass a value returned by
-                ``list_organizations``.
+                ``list_groups``.
             include_datasets: Whether to include linked dataset objects.
             api_base_url: CKAN Action API base URL for the target portal
                 (default points to Morocco open data: data.gov.ma).
@@ -158,11 +158,11 @@ def register_get_organization_tool(mcp: FastMCP) -> None:
             verify_ssl: Whether HTTPS certificates must be verified.
 
         Returns:
-            ``OrganizationDetails`` with normalized organization fields and an
-            optional ``datasets`` payload.
+            ``GroupDetails`` with normalized group fields and an optional
+            ``datasets`` payload.
         """
 
-        return await get_organization(
+        return await get_group(
             id=id,
             include_datasets=include_datasets,
             api_base_url=api_base_url,

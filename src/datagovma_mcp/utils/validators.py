@@ -26,3 +26,11 @@ def validate_non_empty_str(value: str, *, field_name: str) -> str:
     if not normalized:
         raise ValueError(f"`{field_name}` cannot be empty")
     return normalized
+
+
+def validate_bool(value: bool, *, field_name: str) -> bool:
+    """Validate that ``value`` is a boolean."""
+
+    if not isinstance(value, bool):
+        raise ValueError(f"`{field_name}` must be a boolean")
+    return value
