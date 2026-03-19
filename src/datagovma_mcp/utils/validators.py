@@ -15,3 +15,14 @@ def validate_non_negative_int(value: int, *, field_name: str) -> int:
     if value < 0:
         raise ValueError(f"`{field_name}` must be >= 0")
     return value
+
+
+def validate_non_empty_str(value: str, *, field_name: str) -> str:
+    """Validate that ``value`` is a non-empty string after trimming."""
+
+    if not isinstance(value, str):
+        raise ValueError(f"`{field_name}` must be a string")
+    normalized = value.strip()
+    if not normalized:
+        raise ValueError(f"`{field_name}` cannot be empty")
+    return normalized

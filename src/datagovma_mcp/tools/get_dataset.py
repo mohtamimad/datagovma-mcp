@@ -15,6 +15,7 @@ from datagovma_mcp.utils.ckan import (
     fetch_ckan_result,
 )
 from datagovma_mcp.utils.normalizers import as_optional_str
+from datagovma_mcp.utils.validators import validate_non_empty_str
 
 __all__ = ["CKANAPIError", "get_dataset", "register_get_dataset_tool"]
 logger = logging.getLogger(__name__)
@@ -40,17 +41,6 @@ class DatasetDetails(TypedDict):
     groups: list[str]
     resource_count: int
     resources: list[dict[str, object]]
-
-
-def _normalize_dataset_id(value: str) -> str:
-    """Validate and normalize the dataset identifier passed to CKAN."""
-
-    if not isinstance(value, str):
-        raise ValueError("`id` must be a string")
-    normalized = value.strip()
-    if not normalized:
-        raise ValueError("`id` cannot be empty")
-    return normalized
 
 
 def _as_optional_bool(value: object) -> bool | None:
@@ -110,7 +100,7 @@ async def get_dataset(
             returns ``success: false``, or has an invalid CKAN envelope.
     """
 
-    normalized_id = _normalize_dataset_id(id)
+    normalized_id = validate_non_empty_str(id, field_name="id")
     logger.info("Fetching dataset id=%s from %s", normalized_id, api_base_url)
 
     dataset_url, result = await fetch_ckan_result(
