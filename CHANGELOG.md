@@ -4,6 +4,22 @@ All notable changes to this project are documented in this file.
 
 This changelog is based on git tags and commit history.
 
+## [0.11.0] - 2026-03-19
+
+### Added
+
+- add `list_groups` MCP tool powered by CKAN `group_list` with `limit`/`offset` paging and normalized string-name results (`ecfbc9f`)
+- add dedicated `list_groups` tests for success path, API error path, input validation, and MCP registration wiring (`ecfbc9f`)
+
+### Changed
+
+- register `list_groups` in the server tool registry (`ecfbc9f`)
+- standardize counting field names across MCP tools to use explicit `*_count` naming (for example `total_count`, `dataset_count`, `organization_count`, and `group_count`) (`d4b7097`)
+
+### Chore
+
+- bump package version to `0.11.0`
+
 ## [0.10.0] - 2026-03-19
 
 ### Added
