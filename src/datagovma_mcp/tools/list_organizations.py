@@ -1,4 +1,4 @@
-"""Dataset listing tool for Morocco Open Data Government (data.gov.ma)."""
+"""Organization listing tool for Morocco Open Data Government (data.gov.ma)."""
 
 from __future__ import annotations
 
@@ -15,37 +15,34 @@ from datagovma_mcp.utils.ckan import (
 )
 from datagovma_mcp.utils.validators import validate_non_negative_int
 
-__all__ = ["CKANAPIError", "list_datasets", "register_list_datasets_tool"]
+__all__ = ["CKANAPIError", "list_organizations", "register_list_organizations_tool"]
 logger = logging.getLogger(__name__)
 
 
-class DatasetListResult(TypedDict):
-    """Normalized payload shape returned by ``list_datasets``."""
+class OrganizationListResult(TypedDict):
+    """Normalized payload shape returned by ``list_organizations``."""
 
     api_base_url: str
     list_url: str
     limit: int
     offset: int
     returned: int
-    datasets: list[str]
+    organizations: list[str]
 
 
-async def list_datasets(
+async def list_organizations(
     limit: int = 100,
     offset: int = 0,
     *,
     api_base_url: str = DEFAULT_API_BASE_URL,
     timeout_seconds: float = 15.0,
     verify_ssl: bool = True,
-) -> DatasetListResult:
+) -> OrganizationListResult:
     """
-    List dataset names from CKAN ``package_list`` with pagination support.
+    List organization names from CKAN ``organization_list`` with pagination support.
 
     Args:
-        limit: Number of dataset names requested (example: ``100``).
-            CKAN ``package_list`` treats ``0`` as unbounded on many portals,
-            including ``data.gov.ma`` (for example: ``limit=0`` returns all
-            names from the provided ``offset``).
+        limit: Number of organization names requested (example: ``100``).
         offset: Zero-based pagination offset (example: ``0`` for first page).
         api_base_url: CKAN Action API base URL
             (example: ``"https://data.gov.ma/data/api/3/action"``).
@@ -54,7 +51,8 @@ async def list_datasets(
             (example: ``True``).
 
     Returns:
-        A normalized payload with requested pagination values and dataset names.
+        A normalized payload with requested pagination values and organization
+        names.
 
     Raises:
         ValueError: If input parameters fail validation.
@@ -65,7 +63,7 @@ async def list_datasets(
     normalized_limit = validate_non_negative_int(limit, field_name="limit")
     normalized_offset = validate_non_negative_int(offset, field_name="offset")
     logger.info(
-        "Listing datasets from %s limit=%s offset=%s",
+        "Listing organizations from %s limit=%s offset=%s",
         api_base_url,
         normalized_limit,
         normalized_offset,
@@ -73,47 +71,48 @@ async def list_datasets(
 
     list_url, raw_result = await fetch_ckan_action_result(
         api_base_url=api_base_url,
-        action_name="package_list",
+        action_name="organization_list",
         timeout_seconds=timeout_seconds,
         verify_ssl=verify_ssl,
-        query_params={"limit": normalized_limit, "offset": normalized_offset},
+        query_params={
+            "all_fields": "false",
+            "limit": normalized_limit,
+            "offset": normalized_offset,
+        },
     )
-    datasets = as_required_str_list(raw_result, field_name="result")
-    logger.info("Dataset list fetched from %s returned=%s", list_url, len(datasets))
+    organizations = as_required_str_list(raw_result, field_name="result")
+    logger.info("Organization list fetched from %s returned=%s", list_url, len(organizations))
 
     return {
         "api_base_url": api_base_url,
         "list_url": list_url,
         "limit": normalized_limit,
         "offset": normalized_offset,
-        "returned": len(datasets),
-        "datasets": datasets,
+        "returned": len(organizations),
+        "organizations": organizations,
     }
 
 
-def register_list_datasets_tool(mcp: FastMCP) -> None:
-    """Register the ``list_datasets`` tool for Morocco's open data portal."""
-    logger.debug("Registering MCP tool list_datasets")
+def register_list_organizations_tool(mcp: FastMCP) -> None:
+    """Register the ``list_organizations`` tool for Morocco's open data portal."""
+    logger.debug("Registering MCP tool list_organizations")
 
-    @mcp.tool(name="list_datasets")
-    async def list_datasets_tool(
+    @mcp.tool(name="list_organizations")
+    async def list_organizations_tool(
         limit: int = 100,
         offset: int = 0,
         api_base_url: str = DEFAULT_API_BASE_URL,
         timeout_seconds: float = 15.0,
         verify_ssl: bool = True,
-    ) -> DatasetListResult:
+    ) -> OrganizationListResult:
         """
-        List dataset names from Morocco Open Data Government (``data.gov.ma``).
+        List organizations from Morocco Open Data Government (``data.gov.ma``).
 
-        This tool wraps CKAN ``package_list`` and is optimized for lightweight
-        dataset enumeration with explicit paging controls.
+        This tool wraps CKAN ``organization_list`` and is optimized for
+        lightweight organization discovery with explicit paging controls.
 
         Args:
-            limit: Number of dataset names requested (example: ``100``).
-                Note: CKAN ``package_list`` accepts ``limit=0`` as an
-                unbounded request on this portal, returning all names from the
-                requested ``offset``.
+            limit: Number of organization names requested (example: ``100``).
             offset: Zero-based pagination offset (example: ``0``).
             api_base_url: CKAN Action API base URL for the target portal
                 (default points to Morocco open data: data.gov.ma).
@@ -121,10 +120,11 @@ def register_list_datasets_tool(mcp: FastMCP) -> None:
             verify_ssl: Whether HTTPS certificates must be verified.
 
         Returns:
-            ``DatasetListResult`` with pagination metadata and dataset names.
+            ``OrganizationListResult`` with pagination metadata and organization
+            names.
         """
 
-        return await list_datasets(
+        return await list_organizations(
             limit=limit,
             offset=offset,
             api_base_url=api_base_url,

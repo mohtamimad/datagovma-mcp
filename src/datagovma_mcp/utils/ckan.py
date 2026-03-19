@@ -39,6 +39,20 @@ def as_str_object_dict(value: object, *, field_name: str) -> dict[str, object]:
     return normalized
 
 
+def as_required_str_list(value: object, *, field_name: str) -> list[str]:
+    """Validate that ``value`` is a list of strings."""
+
+    if not isinstance(value, list):
+        raise CKANAPIError(f"Malformed CKAN response: `{field_name}` must be a list")
+
+    normalized: list[str] = []
+    for index, item in enumerate(value):
+        if not isinstance(item, str):
+            raise CKANAPIError(f"Malformed CKAN response: `{field_name}[{index}]` must be a string")
+        normalized.append(item)
+    return normalized
+
+
 async def fetch_ckan_action_result(
     *,
     api_base_url: str,
