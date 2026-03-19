@@ -13,6 +13,7 @@ from datagovma_mcp.tools.list_datasets import register_list_datasets_tool
 from datagovma_mcp.tools.list_groups import register_list_groups_tool
 from datagovma_mcp.tools.list_organizations import register_list_organizations_tool
 from datagovma_mcp.tools.search_datasets import register_search_datasets_tool
+from datagovma_mcp.tools.search_resources import register_search_resources_tool
 from datagovma_mcp.tools.status import register_status_tool
 
 logger = logging.getLogger(__name__)
@@ -25,6 +26,7 @@ def register_tools(mcp: FastMCP) -> None:
     registrars = (
         register_status_tool,
         register_search_datasets_tool,
+        register_search_resources_tool,
         register_get_dataset_facets_tool,
         register_get_dataset_tool,
         register_list_datasets_tool,
