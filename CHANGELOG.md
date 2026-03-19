@@ -4,6 +4,21 @@ All notable changes to this project are documented in this file.
 
 This changelog is based on git tags and commit history.
 
+## [0.10.0] - 2026-03-19
+
+### Added
+
+- add `get_organization` MCP tool powered by CKAN `organization_show` with optional `include_datasets` expansion and normalized organization metadata (`421758c`)
+- add dedicated `get_organization` tests for success path, API error path, input validation, and MCP registration wiring (`421758c`)
+
+### Changed
+
+- register `get_organization` in the server tool registry (`421758c`)
+
+### Chore
+
+- bump package version to `0.10.0`
+
 ## [0.9.0] - 2026-03-19
 
 ### Added
