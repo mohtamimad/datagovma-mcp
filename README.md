@@ -23,8 +23,16 @@ Environment variables:
 
 - `MCP_HOST` (default: `127.0.0.1`)
 - `MCP_PORT` (default: `8000`)
+- `MCP_WORKERS` (default: `1`; must be `>= 1`)
+- `MCP_RELOAD` (default: `false`; boolean: `true/false`, `1/0`, `yes/no`, `on/off`)
+- `MCP_TIMEOUT_KEEP_ALIVE` (default: `5`; seconds, must be `>= 1`)
 - `MCP_LOG_LEVEL` (default: `INFO`; one of `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`)
 - `MCP_LOG_FORMAT` (default: `auto`; one of `auto`, `plain`, `rich`)
+
+Notes:
+
+- `MCP_RELOAD=true` requires `MCP_WORKERS=1`.
+- HTTP transport is now started via Uvicorn with FastMCP's `streamable_http_app()` factory.
 
 ## API Baseline (validated on 2026-03-08)
 
