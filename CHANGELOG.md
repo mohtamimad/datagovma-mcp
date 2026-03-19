@@ -4,6 +4,23 @@ All notable changes to this project are documented in this file.
 
 This changelog is based on git tags and commit history.
 
+## [0.14.0] - 2026-03-19
+
+### Added
+
+- add `search_resources` MCP tool powered by CKAN `resource_search` with pagination, optional sort, and normalized resource search payload (`e7d0c43`)
+- add strict `field:value` query parsing/validation for guarded resource search inputs (`e7d0c43`)
+- add dedicated `search_resources` tests for success path, API error path, input validation, WAF fallback path, and MCP registration wiring (`e7d0c43`)
+
+### Changed
+
+- register `search_resources` in the server tool registry (`e7d0c43`)
+- improve resource search failure diagnostics with explicit error logging for validation errors, malformed upstream payloads, and WAF-like non-JSON responses (`e7d0c43`)
+
+### Chore
+
+- bump package version to `0.14.0`
+
 ## [0.13.0] - 2026-03-19
 
 ### Added
