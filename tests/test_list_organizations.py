@@ -31,7 +31,7 @@ def test_list_organizations_success(monkeypatch: pytest.MonkeyPatch):
     assert result["list_url"].endswith("/organization_list")
     assert result["limit"] == 2
     assert result["offset"] == 4
-    assert result["returned"] == 2
+    assert result["organization_count"] == 2
     assert result["organizations"] == [
         "ministry-of-finance",
         "high-commission-for-planning",
@@ -84,7 +84,7 @@ def test_register_list_organizations_tool_registers_decorated_tool(
             "list_url": f"{api_base_url}/organization_list",
             "limit": limit,
             "offset": offset,
-            "returned": 2,
+            "organization_count": 2,
             "organizations": ["ministry-of-finance", "high-commission-for-planning"],
         }
 

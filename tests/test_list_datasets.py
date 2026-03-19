@@ -31,7 +31,7 @@ def test_list_datasets_success(monkeypatch: pytest.MonkeyPatch):
     assert result["list_url"].endswith("/package_list")
     assert result["limit"] == 3
     assert result["offset"] == 6
-    assert result["returned"] == 3
+    assert result["dataset_count"] == 3
     assert result["datasets"] == ["dataset-001", "dataset-002", "dataset-003"]
 
     assert len(calls) == 1
@@ -78,7 +78,7 @@ def test_register_list_datasets_tool_registers_decorated_tool(monkeypatch: pytes
             "list_url": f"{api_base_url}/package_list",
             "limit": limit,
             "offset": offset,
-            "returned": 2,
+            "dataset_count": 2,
             "datasets": ["dataset-001", "dataset-002"],
         }
 

@@ -26,7 +26,7 @@ class OrganizationListResult(TypedDict):
     list_url: str
     limit: int
     offset: int
-    returned: int
+    organization_count: int
     organizations: list[str]
 
 
@@ -81,14 +81,18 @@ async def list_organizations(
         },
     )
     organizations = as_required_str_list(raw_result, field_name="result")
-    logger.info("Organization list fetched from %s returned=%s", list_url, len(organizations))
+    logger.info(
+        "Organization list fetched from %s organization_count=%s",
+        list_url,
+        len(organizations),
+    )
 
     return {
         "api_base_url": api_base_url,
         "list_url": list_url,
         "limit": normalized_limit,
         "offset": normalized_offset,
-        "returned": len(organizations),
+        "organization_count": len(organizations),
         "organizations": organizations,
     }
 

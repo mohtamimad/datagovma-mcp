@@ -26,7 +26,7 @@ class GroupListResult(TypedDict):
     list_url: str
     limit: int
     offset: int
-    returned: int
+    group_count: int
     groups: list[str]
 
 
@@ -80,14 +80,14 @@ async def list_groups(
         },
     )
     groups = as_required_str_list(raw_result, field_name="result")
-    logger.info("Group list fetched from %s returned=%s", list_url, len(groups))
+    logger.info("Group list fetched from %s group_count=%s", list_url, len(groups))
 
     return {
         "api_base_url": api_base_url,
         "list_url": list_url,
         "limit": normalized_limit,
         "offset": normalized_offset,
-        "returned": len(groups),
+        "group_count": len(groups),
         "groups": groups,
     }
 

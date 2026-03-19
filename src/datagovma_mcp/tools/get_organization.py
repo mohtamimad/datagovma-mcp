@@ -36,7 +36,7 @@ class OrganizationDetails(TypedDict):
     created: str | None
     image_url: str | None
     package_count: int | None
-    datasets_returned: int
+    dataset_count: int
     datasets: list[dict[str, object]]
 
 
@@ -132,7 +132,7 @@ async def get_organization(
         "created": as_optional_str(result.get("created")),
         "image_url": as_optional_str(result.get("image_url")),
         "package_count": as_optional_int(result.get("package_count")),
-        "datasets_returned": len(datasets),
+        "dataset_count": len(datasets),
         "datasets": datasets,
     }
 

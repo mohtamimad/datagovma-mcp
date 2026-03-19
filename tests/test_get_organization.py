@@ -47,7 +47,7 @@ def test_get_organization_success(monkeypatch: pytest.MonkeyPatch):
     assert result["id"] == "organization-uuid"
     assert result["title"] == "Ministry of Finance"
     assert result["package_count"] == 42
-    assert result["datasets_returned"] == 2
+    assert result["dataset_count"] == 2
     assert result["datasets"][0]["name"] == "budget-2025"
     assert result["organization_show_url"].endswith("/organization_show")
 
@@ -106,7 +106,7 @@ def test_register_get_organization_tool_registers_decorated_tool(
             "created": None,
             "image_url": None,
             "package_count": 1,
-            "datasets_returned": 1,
+            "dataset_count": 1,
             "datasets": [{"id": "dataset-1", "name": "budget-2025"}],
         }
 

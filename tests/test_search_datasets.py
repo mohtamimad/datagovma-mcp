@@ -46,8 +46,8 @@ def test_search_datasets_success(monkeypatch: pytest.MonkeyPatch):
         )
     )
 
-    assert result["count"] == 2
-    assert result["returned"] == 2
+    assert result["total_count"] == 2
+    assert result["dataset_count"] == 2
     assert result["rows"] == 5
     assert result["start"] == 10
     assert result["query"] == "budget"
@@ -110,8 +110,8 @@ def test_register_search_datasets_tool_registers_decorated_tool(
             "start": start,
             "sort": sort,
             "sort_applied": sort,
-            "count": 1,
-            "returned": 1,
+            "total_count": 1,
+            "dataset_count": 1,
             "results": [{"id": "dataset-1"}],
             "facets": {"organization": {"ministry-of-finance": 1}},
             "search_facets": {},

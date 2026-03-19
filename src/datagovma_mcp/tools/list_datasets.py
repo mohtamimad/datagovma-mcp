@@ -26,7 +26,7 @@ class DatasetListResult(TypedDict):
     list_url: str
     limit: int
     offset: int
-    returned: int
+    dataset_count: int
     datasets: list[str]
 
 
@@ -79,14 +79,14 @@ async def list_datasets(
         query_params={"limit": normalized_limit, "offset": normalized_offset},
     )
     datasets = as_required_str_list(raw_result, field_name="result")
-    logger.info("Dataset list fetched from %s returned=%s", list_url, len(datasets))
+    logger.info("Dataset list fetched from %s dataset_count=%s", list_url, len(datasets))
 
     return {
         "api_base_url": api_base_url,
         "list_url": list_url,
         "limit": normalized_limit,
         "offset": normalized_offset,
-        "returned": len(datasets),
+        "dataset_count": len(datasets),
         "datasets": datasets,
     }
 

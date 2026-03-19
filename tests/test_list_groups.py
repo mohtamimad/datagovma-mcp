@@ -27,7 +27,7 @@ def test_list_groups_success(monkeypatch: pytest.MonkeyPatch):
     assert result["list_url"].endswith("/group_list")
     assert result["limit"] == 2
     assert result["offset"] == 4
-    assert result["returned"] == 2
+    assert result["group_count"] == 2
     assert result["groups"] == ["economy", "transport"]
 
     assert len(calls) == 1
@@ -77,7 +77,7 @@ def test_register_list_groups_tool_registers_decorated_tool(
             "list_url": f"{api_base_url}/group_list",
             "limit": limit,
             "offset": offset,
-            "returned": 2,
+            "group_count": 2,
             "groups": ["economy", "transport"],
         }
 

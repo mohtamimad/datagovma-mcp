@@ -31,8 +31,8 @@ class DatasetSearchResult(TypedDict):
     start: int
     sort: str | None
     sort_applied: str | None
-    count: int
-    returned: int
+    total_count: int
+    dataset_count: int
     results: list[dict[str, object]]
     facets: dict[str, dict[str, int]]
     search_facets: dict[str, object]
@@ -188,7 +188,7 @@ async def search_datasets(
     for index, item in enumerate(raw_results):
         normalized_results.append(as_str_object_dict(item, field_name=f"result.results[{index}]"))
     logger.info(
-        "Dataset search completed from %s count=%s returned=%s",
+        "Dataset search completed from %s total_count=%s dataset_count=%s",
         search_url,
         count_value,
         len(normalized_results),
@@ -203,8 +203,8 @@ async def search_datasets(
         "start": normalized_start,
         "sort": normalized_sort,
         "sort_applied": as_optional_str(result.get("sort")),
-        "count": count_value,
-        "returned": len(normalized_results),
+        "total_count": count_value,
+        "dataset_count": len(normalized_results),
         "results": normalized_results,
         "facets": _normalize_facets(result.get("facets")),
         "search_facets": _normalize_search_facets(result.get("search_facets")),
@@ -251,8 +251,9 @@ def register_search_datasets_tool(mcp: FastMCP) -> None:
             verify_ssl: Whether HTTPS certificates must be verified (example: ``True``).
 
         Returns:
-            ``DatasetSearchResult`` including total ``count``, current page
-            ``results``, applied pagination/sort metadata, and optional facets.
+            ``DatasetSearchResult`` including ``total_count``, current-page
+            ``dataset_count``, ``results``, applied pagination/sort metadata,
+            and optional facets.
         """
 
         return await search_datasets(
