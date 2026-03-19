@@ -5,6 +5,7 @@ import logging
 from mcp.server.fastmcp import FastMCP
 
 from datagovma_mcp.tools.get_dataset import register_get_dataset_tool
+from datagovma_mcp.tools.get_organization import register_get_organization_tool
 from datagovma_mcp.tools.get_resource import register_get_resource_tool
 from datagovma_mcp.tools.list_datasets import register_list_datasets_tool
 from datagovma_mcp.tools.list_organizations import register_list_organizations_tool
@@ -25,6 +26,7 @@ def register_tools(mcp: FastMCP) -> None:
         register_list_datasets_tool,
         register_get_resource_tool,
         register_list_organizations_tool,
+        register_get_organization_tool,
     )
     for register_tool in registrars:
         register_tool(mcp)
