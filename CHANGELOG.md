@@ -4,6 +4,22 @@ All notable changes to this project are documented in this file.
 
 This changelog is based on git tags and commit history.
 
+## [0.9.0] - 2026-03-19
+
+### Added
+
+- add `list_organizations` MCP tool powered by CKAN `organization_list` with `limit`/`offset` paging and normalized string-name results (`9f23ba4`)
+- add dedicated `list_organizations` tests for success path, API error path, input validation, and MCP registration wiring (`9f23ba4`)
+
+### Changed
+
+- register `list_organizations` in the server tool registry (`9f23ba4`)
+- deduplicate CKAN list-response normalization by adding shared `as_required_str_list` helper and reusing it in dataset/organization listing tools (`9f23ba4`)
+
+### Chore
+
+- bump package version to `0.9.0`
+
 ## [0.8.1] - 2026-03-19
 
 ### Changed
