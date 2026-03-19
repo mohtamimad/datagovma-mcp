@@ -4,6 +4,26 @@ All notable changes to this project are documented in this file.
 
 This changelog is based on git tags and commit history.
 
+## [0.8.0] - 2026-03-19
+
+### Added
+
+- add Uvicorn runtime configuration via environment variables: `MCP_WORKERS`, `MCP_RELOAD`, and `MCP_TIMEOUT_KEEP_ALIVE` (`d445f32`)
+- add startup/config test coverage for Uvicorn factory mode and validation rules (including `reload` + workers compatibility) (`d445f32`)
+
+### Changed
+
+- run HTTP transport through explicit `uvicorn.run(..., factory=True)` with FastMCP `streamable_http_app()` (`d445f32`)
+- standardize server config parsing helpers for host/int/bool normalization and validation (`d445f32`)
+
+### Docs
+
+- document new Uvicorn-related environment variables in README and `.env.example` (`d445f32`)
+
+### Chore
+
+- bump package version to `0.8.0`
+
 ## [0.7.0] - 2026-03-19
 
 ### Added
