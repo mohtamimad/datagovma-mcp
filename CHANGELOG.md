@@ -4,6 +4,22 @@ All notable changes to this project are documented in this file.
 
 This changelog is based on git tags and commit history.
 
+## [0.7.0] - 2026-03-19
+
+### Added
+
+- add `get_resource` MCP tool powered by CKAN `resource_show` with normalized resource metadata fields including format, mimetype, size, and package linkage (`16a48ac`)
+- add dedicated `get_resource` tests for success path, API error path, input validation, and MCP registration wiring (`16a48ac`)
+
+### Changed
+
+- register `get_resource` in the server tool registry (`16a48ac`)
+- reuse shared input/output helpers by adding `validate_non_empty_str` and `as_optional_int`, then applying them across dataset/resource tool paths (`16a48ac`)
+
+### Chore
+
+- bump package version to `0.7.0`
+
 ## [0.6.0] - 2026-03-18
 
 ### Added
