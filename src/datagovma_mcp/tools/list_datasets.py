@@ -57,6 +57,9 @@ async def list_datasets(
 
     Args:
         limit: Number of dataset names requested (example: ``100``).
+            CKAN ``package_list`` treats ``0`` as unbounded on many portals,
+            including ``data.gov.ma`` (for example: ``limit=0`` returns all
+            names from the provided ``offset``).
         offset: Zero-based pagination offset (example: ``0`` for first page).
         api_base_url: CKAN Action API base URL
             (example: ``"https://data.gov.ma/data/api/3/action"``).
@@ -123,6 +126,9 @@ def register_list_datasets_tool(mcp: FastMCP) -> None:
 
         Args:
             limit: Number of dataset names requested (example: ``100``).
+                Note: CKAN ``package_list`` accepts ``limit=0`` as an
+                unbounded request on this portal, returning all names from the
+                requested ``offset``.
             offset: Zero-based pagination offset (example: ``0``).
             api_base_url: CKAN Action API base URL for the target portal
                 (default points to Morocco open data: data.gov.ma).
