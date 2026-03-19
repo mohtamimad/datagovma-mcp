@@ -1,5 +1,6 @@
 """Shared normalization helpers for common response fields."""
 
+from collections.abc import Sequence
 from typing import cast
 
 from datagovma_mcp.utils.validators import is_int
@@ -38,3 +39,34 @@ def normalize_optional_string(value: str | None, *, field_name: str) -> str | No
         raise ValueError(f"`{field_name}` must be a string")
     normalized = value.strip()
     return normalized or None
+
+
+def normalize_facet_fields(
+    facet_fields: list[str] | None,
+    *,
+    default_fields: Sequence[str] | None = None,
+) -> list[str]:
+    """
+    Validate facet fields and return an ordered, de-duplicated list.
+
+    When ``facet_fields`` is ``None``, returns ``default_fields`` when provided,
+    otherwise an empty list.
+    """
+
+    if facet_fields is None:
+        return list(default_fields) if default_fields is not None else []
+    if not isinstance(facet_fields, list):
+        raise ValueError("`facet_fields` must be a list of strings")
+
+    normalized: list[str] = []
+    seen: set[str] = set()
+    for item in facet_fields:
+        if not isinstance(item, str):
+            raise ValueError("`facet_fields` must contain only strings")
+        field_name = item.strip()
+        if not field_name:
+            raise ValueError("`facet_fields` cannot contain empty values")
+        if field_name not in seen:
+            normalized.append(field_name)
+            seen.add(field_name)
+    return normalized

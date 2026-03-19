@@ -14,7 +14,11 @@ from datagovma_mcp.utils.ckan import (
     as_str_object_dict,
     fetch_ckan_result,
 )
-from datagovma_mcp.utils.normalizers import as_optional_str, normalize_optional_string
+from datagovma_mcp.utils.normalizers import (
+    as_optional_str,
+    normalize_facet_fields,
+    normalize_optional_string,
+)
 from datagovma_mcp.utils.validators import is_int, validate_non_negative_int
 
 logger = logging.getLogger(__name__)
@@ -36,28 +40,6 @@ class DatasetSearchResult(TypedDict):
     results: list[dict[str, object]]
     facets: dict[str, dict[str, int]]
     search_facets: dict[str, object]
-
-
-def _normalize_facet_fields(facet_fields: list[str] | None) -> list[str]:
-    """Validate facet fields and return an ordered, de-duplicated list."""
-
-    if facet_fields is None:
-        return []
-    if not isinstance(facet_fields, list):
-        raise ValueError("`facet_fields` must be a list of strings")
-
-    normalized: list[str] = []
-    seen: set[str] = set()
-    for item in facet_fields:
-        if not isinstance(item, str):
-            raise ValueError("`facet_fields` must contain only strings")
-        field_name = item.strip()
-        if not field_name:
-            raise ValueError("`facet_fields` cannot contain empty values")
-        if field_name not in seen:
-            normalized.append(field_name)
-            seen.add(field_name)
-    return normalized
 
 
 def _normalize_facets(value: object) -> dict[str, dict[str, int]]:
@@ -140,7 +122,7 @@ async def search_datasets(
     normalized_sort = normalize_optional_string(sort, field_name="sort")
     normalized_rows = validate_non_negative_int(rows, field_name="rows")
     normalized_start = validate_non_negative_int(start, field_name="start")
-    normalized_facet_fields = _normalize_facet_fields(facet_fields)
+    normalized_facet_fields = normalize_facet_fields(facet_fields)
     logger.info(
         "Searching datasets from %s q=%r fq=%r rows=%s start=%s sort=%r facets=%s",
         api_base_url,
