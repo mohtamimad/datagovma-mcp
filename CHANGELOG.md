@@ -4,6 +4,23 @@ All notable changes to this project are documented in this file.
 
 This changelog is based on git tags and commit history.
 
+## [0.13.0] - 2026-03-19
+
+### Added
+
+- add `get_dataset_facets` MCP tool powered by CKAN `package_search` (`rows=0`) with facet field defaults and normalized facet-focused payload (`e6c2e23`)
+- add dedicated `get_dataset_facets` tests for success path, default facet fields, API error path, input validation, and MCP registration wiring (`e6c2e23`)
+
+### Changed
+
+- register `get_dataset_facets` in the server tool registry (`e6c2e23`)
+- deduplicate facet field validation by introducing shared `normalize_facet_fields` helper and reusing it across dataset search/facets tools (`e6c2e23`)
+- expand `get_dataset_facets` tool docstrings to match project documentation style (`e6c2e23`)
+
+### Chore
+
+- bump package version to `0.13.0`
+
 ## [0.12.0] - 2026-03-19
 
 ### Added
