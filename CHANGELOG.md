@@ -4,6 +4,18 @@ All notable changes to this project are documented in this file.
 
 This changelog is based on git tags and commit history.
 
+## [0.8.1] - 2026-03-19
+
+### Changed
+
+- refactor CKAN action fetch helpers to centralize async client resolution and remove duplicated tool-level `httpx.AsyncClient` wiring (`3387291`)
+- move optional string trimming/blank-collapse logic into shared normalizers for reuse across tools (`3387291`)
+- simplify server construction to use host/port config directly while keeping Uvicorn runtime settings in startup flow (`3387291`)
+
+### Chore
+
+- bump package version to `0.8.1`
+
 ## [0.8.0] - 2026-03-19
 
 ### Added
