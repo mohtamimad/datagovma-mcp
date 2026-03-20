@@ -34,6 +34,7 @@ Notes:
 
 - `MCP_RELOAD=true` requires `MCP_WORKERS=1`.
 - HTTP transport is now started via Uvicorn with FastMCP's `streamable_http_app()` factory.
+- Liveness endpoint: `GET /healthz` returns `200` with body `ok`.
 
 ## API Baseline (validated on 2026-03-08)
 

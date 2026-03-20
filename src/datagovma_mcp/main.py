@@ -32,13 +32,28 @@ def create_server() -> FastMCP:
 
 
 def create_http_app():
-    """Create the streamable HTTP ASGI app for Uvicorn factory startup."""
+    """Create the ASGI app with MCP routes and a lightweight health endpoint."""
 
     # Ensure worker processes trust the system certificate store for outbound HTTPS.
     truststore.inject_into_ssl()
     logger.debug("System trust store injected")
     server = create_server()
-    return server.streamable_http_app()
+    mcp_app = server.streamable_http_app()
+
+    async def app(scope, receive, send):
+        if scope.get("type") == "http" and scope.get("path") == "/healthz":
+            await send(
+                {
+                    "type": "http.response.start",
+                    "status": 200,
+                    "headers": [(b"content-type", b"text/plain; charset=utf-8")],
+                }
+            )
+            await send({"type": "http.response.body", "body": b"ok", "more_body": False})
+            return
+        await mcp_app(scope, receive, send)
+
+    return app
 
 
 def main() -> None:

@@ -21,7 +21,7 @@ services:
           "CMD",
           "python",
           "-c",
-          "import os,socket; p=int(os.getenv('MCP_PORT','8000')); s=socket.create_connection(('127.0.0.1', p), 2); s.close()",
+          "import os,urllib.request; p=os.getenv('MCP_PORT','8000'); urllib.request.urlopen(f'http://127.0.0.1:{p}/healthz', timeout=2).read()",
         ]
       interval: 30s
       timeout: 5s

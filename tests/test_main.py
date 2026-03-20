@@ -1,16 +1,53 @@
+import asyncio
+
 from datagovma_mcp import main
 from datagovma_mcp.utils.server_config import UvicornServerConfig
 
 
-def test_create_http_app_injects_truststore(monkeypatch):
-    called = {"inject": False, "create": False}
+def _run_asgi_http_request(app, *, path: str, method: str = "GET") -> list[dict]:
+    messages: list[dict] = []
+    request_consumed = False
+
+    scope = {
+        "type": "http",
+        "asgi": {"version": "3.0"},
+        "http_version": "1.1",
+        "method": method,
+        "scheme": "http",
+        "path": path,
+        "raw_path": path.encode(),
+        "query_string": b"",
+        "headers": [],
+    }
+
+    async def _receive():
+        nonlocal request_consumed
+        if request_consumed:
+            return {"type": "http.disconnect"}
+        request_consumed = True
+        return {"type": "http.request", "body": b"", "more_body": False}
+
+    async def _send(message: dict) -> None:
+        messages.append(message)
+
+    asyncio.run(app(scope, _receive, _send))
+    return messages
+
+
+def test_create_http_app_injects_truststore_and_serves_healthz(monkeypatch):
+    called = {"inject": False, "create": False, "mcp_app_called": False}
 
     def _fake_inject() -> None:
         called["inject"] = True
 
+    async def _fake_mcp_app(_scope, _receive, _send) -> None:
+        called["mcp_app_called"] = True
+        await _send({"type": "http.response.start", "status": 204, "headers": []})
+        await _send({"type": "http.response.body", "body": b"", "more_body": False})
+
     class _FakeServer:
         def streamable_http_app(self):
-            return "fake-app"
+            return _fake_mcp_app
 
     def _fake_create_server():
         called["create"] = True
@@ -20,10 +57,39 @@ def test_create_http_app_injects_truststore(monkeypatch):
     monkeypatch.setattr("datagovma_mcp.main.create_server", _fake_create_server)
 
     app = main.create_http_app()
+    messages = _run_asgi_http_request(app, path="/healthz")
 
-    assert app == "fake-app"
+    assert callable(app)
+    assert messages[0]["type"] == "http.response.start"
+    assert messages[0]["status"] == 200
+    assert messages[1]["type"] == "http.response.body"
+    assert messages[1]["body"] == b"ok"
     assert called["inject"] is True
     assert called["create"] is True
+    assert called["mcp_app_called"] is False
+
+
+def test_create_http_app_routes_non_health_requests_to_mcp_app(monkeypatch):
+    called = {"mcp_app_called": False}
+
+    async def _fake_mcp_app(_scope, _receive, _send) -> None:
+        called["mcp_app_called"] = True
+        await _send({"type": "http.response.start", "status": 204, "headers": []})
+        await _send({"type": "http.response.body", "body": b"", "more_body": False})
+
+    class _FakeServer:
+        def streamable_http_app(self):
+            return _fake_mcp_app
+
+    monkeypatch.setattr("datagovma_mcp.main.truststore.inject_into_ssl", lambda: None)
+    monkeypatch.setattr("datagovma_mcp.main.create_server", lambda: _FakeServer())
+
+    app = main.create_http_app()
+    messages = _run_asgi_http_request(app, path="/mcp")
+
+    assert messages[0]["type"] == "http.response.start"
+    assert messages[0]["status"] == 204
+    assert called["mcp_app_called"] is True
 
 
 def test_main_runs_uvicorn_factory(monkeypatch):
