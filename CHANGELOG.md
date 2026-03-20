@@ -4,6 +4,27 @@ All notable changes to this project are documented in this file.
 
 This changelog is based on git tags and commit history.
 
+## [0.15.0] - 2026-03-20
+
+### Added
+
+- add production Docker artifacts (`Dockerfile`, `docker-compose.yml`, and `.dockerignore`) with lockfile-based `uv` image build and non-root runtime (`6738890`)
+- add HTTP liveness endpoint `GET /healthz` for container health probes (`20dd6a2`)
+- add ASGI health endpoint tests covering direct `/healthz` handling and passthrough to MCP routes (`20dd6a2`)
+
+### Changed
+
+- switch Docker Compose healthcheck from TCP socket probing to HTTP `/healthz` checks (`20dd6a2`)
+- separate Docker bind-host configuration via `MCP_BIND_HOST` mapped to app `MCP_HOST` in the container (`6738890`)
+
+### Docs
+
+- document `MCP_BIND_HOST` and `/healthz` liveness behavior in the README (`6738890`, `20dd6a2`)
+
+### Chore
+
+- bump package version to `0.15.0`
+
 ## [0.14.0] - 2026-03-19
 
 ### Added
