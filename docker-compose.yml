@@ -1,0 +1,30 @@
+services:
+  datagovma-mcp:
+    container_name: datagovma-mcp
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: datagovma-mcp:latest
+    environment:
+      MCP_HOST: ${MCP_BIND_HOST:-0.0.0.0}
+      MCP_PORT: ${MCP_PORT:-8000}
+      MCP_WORKERS: ${MCP_WORKERS:-1}
+      MCP_RELOAD: ${MCP_RELOAD:-false}
+      MCP_TIMEOUT_KEEP_ALIVE: ${MCP_TIMEOUT_KEEP_ALIVE:-5}
+      MCP_LOG_LEVEL: ${MCP_LOG_LEVEL:-INFO}
+      MCP_LOG_FORMAT: ${MCP_LOG_FORMAT:-auto}
+    ports:
+      - "${MCP_PORT:-8000}:${MCP_PORT:-8000}"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import os,socket; p=int(os.getenv('MCP_PORT','8000')); s=socket.create_connection(('127.0.0.1', p), 2); s.close()",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped

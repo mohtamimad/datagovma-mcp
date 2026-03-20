@@ -28,6 +28,7 @@ Environment variables:
 - `MCP_TIMEOUT_KEEP_ALIVE` (default: `5`; seconds, must be `>= 1`)
 - `MCP_LOG_LEVEL` (default: `INFO`; one of `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`)
 - `MCP_LOG_FORMAT` (default: `auto`; one of `auto`, `plain`, `rich`)
+- `MCP_BIND_HOST` (Docker Compose only; default: `0.0.0.0`; mapped to app `MCP_HOST` inside container)
 
 Notes:
 
