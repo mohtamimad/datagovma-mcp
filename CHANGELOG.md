@@ -4,6 +4,22 @@ All notable changes to this project are documented in this file.
 
 This changelog is based on git tags and commit history.
 
+## [0.15.1] - 2026-03-20
+
+### Fixed
+
+- remove stale `datagovma-mcp-stdio` console script entrypoint that referenced missing `main_stdio` (`pyproject.toml`)
+
+### Changed
+
+- add GitHub Actions CI workflow with dependency review, lint, format, type-check, test, and build jobs (`0608ba5`)
+- align Docker base image and CI matrix with Python `3.14` while keeping project compatibility at `>=3.11` (`3ff65a7`)
+- refresh public-facing README and add `CONTRIBUTING.md` with required pre-commit workflow (`8702d52`)
+
+### Chore
+
+- bump package version to `0.15.1`
+
 ## [0.15.0] - 2026-03-20
 
 ### Added
