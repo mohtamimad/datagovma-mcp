@@ -2,137 +2,175 @@
 
 MCP server for the Moroccan Open Data portal ([data.gov.ma](https://data.gov.ma)).
 
-## Run MCP Server (HTTP Transport)
+`datagovma-mcp` exposes curated MCP tools backed by CKAN Action API endpoints so AI clients can discover datasets, resources, organizations, and groups in a consistent typed shape.
 
-The server uses the official FastMCP streamable HTTP transport.
+## What this project provides
+
+- Streamable HTTP MCP server built with FastMCP.
+- Typed and validated tool inputs/outputs.
+- Centralized CKAN envelope validation (`success` checks, JSON checks, timeout handling).
+- Test suite covering success and error paths.
+- Docker image and Docker Compose setup.
+
+## Implemented MCP tools
+
+| MCP tool | CKAN action | Purpose |
+| --- | --- | --- |
+| `get_portal_status` | `status_show` | Check portal identity and CKAN version. |
+| `search_datasets` | `package_search` | Full-text search with paging and optional facets. |
+| `get_dataset` | `package_show` | Fetch one dataset by slug or UUID. |
+| `list_datasets` | `package_list` | List dataset names with pagination. |
+| `get_resource` | `resource_show` | Fetch one resource and download metadata. |
+| `search_resources` | `resource_search` | Search resources using strict `field:value` query format. |
+| `list_organizations` | `organization_list` | List organization names with pagination. |
+| `get_organization` | `organization_show` | Fetch organization details and optional datasets. |
+| `list_groups` | `group_list` | List group names with pagination. |
+| `get_group` | `group_show` | Fetch group details and optional datasets. |
+| `get_dataset_facets` | `package_search` (`rows=0`) | Aggregate facet buckets (`tags`, `groups`, `organization`). |
+
+## Requirements
+
+- Python `>=3.11`
+- [uv](https://docs.astral.sh/uv/) for dependency management
+- Docker (optional, for containerized runs)
+
+## Quick start (local)
 
 ```bash
+uv sync --frozen --group dev
+cp .env.example .env
+set -a && source .env && set +a
 uv run datagovma-mcp
 ```
 
-By default, FastMCP serves on `http://127.0.0.1:8000/mcp`.
+Default endpoint:
 
-You can override host/port using a local `.env` file:
+- MCP: `http://127.0.0.1:8000/mcp`
+- Health: `http://127.0.0.1:8000/healthz`
+
+Quick health check:
 
 ```bash
-cp .env.example .env
-set -a && source .env && set +a
+curl -fsS http://127.0.0.1:8000/healthz
 ```
 
-Environment variables:
+Expected response:
 
-- `MCP_HOST` (default: `127.0.0.1`)
-- `MCP_PORT` (default: `8000`)
-- `MCP_WORKERS` (default: `1`; must be `>= 1`)
-- `MCP_RELOAD` (default: `false`; boolean: `true/false`, `1/0`, `yes/no`, `on/off`)
-- `MCP_TIMEOUT_KEEP_ALIVE` (default: `5`; seconds, must be `>= 1`)
-- `MCP_LOG_LEVEL` (default: `INFO`; one of `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`)
-- `MCP_LOG_FORMAT` (default: `auto`; one of `auto`, `plain`, `rich`)
-- `MCP_BIND_HOST` (Docker Compose only; default: `0.0.0.0`; mapped to app `MCP_HOST` inside container)
+- `200 OK` with body `ok`.
+
+## Run with Docker
+
+```bash
+docker compose up --build
+```
+
+The service starts on port `8000` by default and exposes `/mcp` and `/healthz`.
+
+## Connect from LLM clients
+
+### Claude Desktop
+
+After the server is running, edit:
+
+- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+- Linux: `~/.config/Claude/claude_desktop_config.json`
+
+Then add:
+
+```json
+{
+  "mcpServers": {
+    "opengovma": {
+      "command": "npx",
+      "args": ["mcp-remote", "http://127.0.0.1:8000/mcp"]
+    }
+  }
+}
+```
+
+### Claude Code
+
+Add the server with Claude Code CLI:
+
+```bash
+claude mcp add --transport http opengovma http://127.0.0.1:8000/mcp
+```
+
+### Codex (Desktop app and CLI)
+
+Add the server with Codex CLI:
+
+```bash
+codex mcp add opengovma --url http://127.0.0.1:8000/mcp
+```
+
+### VS Code (GitHub Copilot MCP)
+
+Create `.vscode/mcp.json` in your workspace (or open your user MCP config via command palette) and add:
+
+```json
+{
+  "servers": {
+    "opengovma": {
+      "type": "http",
+      "url": "http://127.0.0.1:8000/mcp"
+    }
+  }
+}
+```
+
+### Cursor
+
+Add this to `.cursor/mcp.json` (project) or `~/.cursor/mcp.json` (global):
+
+```json
+{
+  "mcpServers": {
+    "opengovma": {
+      "url": "http://127.0.0.1:8000/mcp"
+    }
+  }
+}
+```
+
+## Configuration
+
+Environment variables are loaded by your shell or container runtime.
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `MCP_HOST` | `127.0.0.1` | Host interface used by Uvicorn inside the app. |
+| `MCP_BIND_HOST` | `0.0.0.0` | Docker Compose helper mapped to `MCP_HOST`. |
+| `MCP_PORT` | `8000` | Listening port. |
+| `MCP_WORKERS` | `1` | Number of worker processes (`>=1`). |
+| `MCP_RELOAD` | `false` | Hot reload mode for development (`true/false`, `1/0`, `yes/no`, `on/off`). |
+| `MCP_TIMEOUT_KEEP_ALIVE` | `5` | HTTP keep-alive timeout in seconds (`>=1`). |
+| `MCP_LOG_LEVEL` | `INFO` | One of `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`. |
+| `MCP_LOG_FORMAT` | `auto` | One of `auto`, `plain`, `rich`. |
 
 Notes:
 
 - `MCP_RELOAD=true` requires `MCP_WORKERS=1`.
-- HTTP transport is now started via Uvicorn with FastMCP's `streamable_http_app()` factory.
-- Liveness endpoint: `GET /healthz` returns `200` with body `ok`.
+- `MCP_LOG_FORMAT=rich` falls back to plain logs if Rich is unavailable.
 
-## API Baseline (validated on 2026-03-08)
+## Continuous integration
 
-- API base URL: `https://data.gov.ma/data/api/3/action`
-- Backend: CKAN `2.9.11` (`status_show`)
-- Response envelope is CKAN standard:
-  - `success` (`true`/`false`)
-  - `result` (payload)
-  - `help` (doc string URL/text)
-- Important: some failures still return HTTP `200`, so tool code must always check `success`.
-- Auth model (for non-public actions): `Authorization` or `X-CKAN-API-Key`.
+GitHub Actions workflow: `.github/workflows/ci.yml`
 
-### Observed portal quirks
+CI runs on pull requests and pushes to `main`/`master` and includes:
 
-- Public metadata endpoints are available (`package_*`, `resource_show`, `organization_*`, `group_*`).
-- `package_search?rows=0` reports ~`663` datasets at this time.
-- No `datastore_active=true` resources were found across current datasets, so DataStore tools should be lower priority.
-- `tag_list` currently returns an empty list; tag-like insights are still available via `package_search` facets.
-- `resource_search` works with `field:value` queries (example: `name:stat`), but some patterns can be blocked by site WAF and return HTML `Request Rejected`.
+- dependency review (PR only)
+- lint (`ruff`)
+- format check (`ruff format --check`)
+- type check (`mypy`)
+- tests (`pytest`)
+- package build (`uv build`)
 
-## Proposed project structure
+## Contributing
 
-```text
-datagovma-mcp/
-  src/
-    datagovma_mcp/
-      main.py              # MCP server entrypoint (streamable HTTP)
-      tools/
-        status.py          # status_show tool implementation
-  tests/
-    test_status.py
-    test_main.py
-```
-
-## Tool roadmap (build + test one by one)
-
-1. `get_portal_status`
-   - API: `status_show`
-   - Why first: validates connectivity and shared response/error handling.
-   - Test: assert `ckan_version`, `site_url`, and `extensions` presence.
-
-2. `search_datasets`
-   - API: `package_search`
-   - Inputs: `q`, `fq`, `rows`, `start`, `sort`, optional `facet_fields`.
-   - Test: query returns `count`, `results`, pagination fields.
-
-3. `get_dataset`
-   - API: `package_show`
-   - Inputs: `id` (name or UUID).
-   - Test: response includes core metadata and resources list.
-
-4. `list_datasets`
-   - API: `package_list`
-   - Inputs: `limit`, `offset`.
-   - Test: paging works and names are stable strings.
-
-5. `get_resource`
-   - API: `resource_show`
-   - Inputs: `id`.
-   - Test: format, mimetype, download URL, and package linkage returned.
-
-6. `list_organizations` + `get_organization`
-   - APIs: `organization_list`, `organization_show`.
-   - Test: basic listing, details with optional dataset inclusion.
-
-7. `list_groups` + `get_group`
-   - APIs: `group_list`, `group_show`.
-   - Test: listing plus group detail with package count.
-
-8. `get_dataset_facets` (practical replacement for `tag_list`)
-   - API: `package_search` with `rows=0` + `facet.field`.
-   - Test: returns facet buckets for `tags`, `groups`, `organization`.
-
-9. `search_resources` (phase 2, guarded)
-   - API: `resource_search`
-   - Caveat: apply strict validation (`field:value` only) and graceful fallback on WAF rejection.
-
-10. DataStore tools (phase 3, optional)
-   - APIs: `datastore_search`, `datastore_info`
-   - Condition: enable once the portal exposes `datastore_active` resources.
-
-## Implementation order
-
-Start with `get_portal_status` and `search_datasets`, then continue in roadmap order.
-Each tool should ship with:
-
-- input schema validation,
-- CKAN envelope validation (`success` + `error` mapping),
-- one unit test for success,
-- one unit test for API error path,
-- one live smoke test (optional flag) against `data.gov.ma`.
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, checks, and PR guidance.
 
 ## License
 
-This project is open-sourced under the MIT License.
-
-- You can use, modify, and distribute this software, including for commercial use.
-- You must keep the copyright and license notice in copies/substantial portions.
-- The software is provided "as is", without warranty.
-
-See [LICENSE](LICENSE) for the full text.
+Licensed under the MIT License. See [LICENSE](LICENSE).
