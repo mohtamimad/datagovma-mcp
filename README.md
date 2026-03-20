@@ -1,5 +1,9 @@
 # datagovma-mcp
 
+<p align="center">
+  <img src="assets/banner.jpg" alt="datagovma-mcp banner" width="100%" />
+</p>
+
 MCP server for the Moroccan Open Data portal ([data.gov.ma](https://data.gov.ma)).
 
 `datagovma-mcp` exposes curated MCP tools backed by CKAN Action API endpoints so AI clients can discover datasets, resources, organizations, and groups in a consistent typed shape.
